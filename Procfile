@@ -1,1 +1,1 @@
-web: gunicorn web-wrapper.wsgi
+web: gunicorn web_wrapper.wsgi
