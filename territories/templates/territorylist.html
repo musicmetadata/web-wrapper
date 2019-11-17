@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+    {%  block content %}
+        <form action="." method="post" class="pure-form">
+        {% csrf_token %}
+        {{ formset.management_form }}
+{% for dict in formset.errors %}
+    {% for error in dict.values %}
+        {{ error }}
+    {% endfor %}
+{% endfor %}
+            <table class="pure-table">
+                <thead>
+                    <tr><th>Incl. / Excl.</th><th>Territory</th></tr>
+                </thead>
+                <tbody>
+                    {% for form in formset %}
+                        <tr>
+                            {% for field in form %}
+                                <td>{{ field }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% if form.non_field_errors %}
+                            <tr><td>{{ form.non_field_errors }}</td></tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+                <tr><td colspan="2"><input type="submit" value="Calculate" class="pure-button" style="width: 100%"></td></tr>
+            </table>
+        </form>
+        {% if formset.territory_list %}
+            <h2>Included Territories</h2>
+            <pre>{% for t in formset.territory_list %}
+{{ t.tis_n|stringformat:"04s" }} - {{ t }}{% endfor %}
+            </pre>
+        {% endif %}
+    {%  endblock %}
