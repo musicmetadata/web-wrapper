@@ -1,5 +1,6 @@
 {% extends "base.html" %}
     {%  block content %}
+        <p>Python code, available as open source: <a href="https://github.com/musicmetadata/territories" target="_blank">https://github.com/musicmetadata/territories</a></p>
         <form action="." method="post" class="pure-form">
         {% csrf_token %}
         {{ formset.management_form }}
