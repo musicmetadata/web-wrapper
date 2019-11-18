@@ -1,5 +1,5 @@
 Django==2.2.7
-music-metadata-territories>=19a2
+music-metadata-territories>=19b2
 pytz==2019.3
 whitenoise
 gunicorn
