@@ -1,6 +1,6 @@
 # Music Metadata - Web Wrapper
 
-A minimalistic Django implementation, requiring no database, and no environment variables set for a deployment to containers.
+A minimalist Django implementation, requiring no database, and no environment variables. For a deployment on Heroku/Dokku.
 
 Made as a web-based proof of concept for Python libraries:
 
