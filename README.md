@@ -5,6 +5,7 @@ A minimalist Django implementation, requiring no database, and no environment va
 Made as a web-based proof of concept for Python libraries:
 
 * Music Metadata - Territories: https://github.com/musicmetadata/territories
+* Music Metadata - EDI: https://github.com/musicmetadata/edi
 
 More to come...
 
