@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+    {%  block style %}
+        span.transaction_sequence_number {color: #666}
+        span.record_sequence_number {color: #999}
+        span.invalid {background-color: #c99}
+        h4.invalid {color: #c00}
+    {%  endblock %}
+    {%  block content %}
+        <p>Python code, available as open source: <a href="https://github.com/musicmetadata/territories" target="_blank">https://github.com/musicmetadata/territories</a></p>
+        <form enctype="multipart/form-data" action="." method="post" class="pure-form">
+            {% csrf_token %}
+            <table class="pure-table">
+                <thead>
+                    <tr><th colspan="2">Choose a file for processing</th></tr>
+                </thead>
+                <tbody>
+                    {{ form.as_table }}
+                    <tr><td colspan="2"><input type="submit" value="Process" class="pure-button" style="width: 100%"></td></tr>
+                </tbody>
+            </table>
+        </form>
+        <h2>File: {{ edi_file }}</h2>
+        {% for group in edi_file.get_groups %}
+            <h3>Group: {{ group }}</h3>
+            {% for transaction in group.get_transactions_with_errors %}
+                <h4 {% if not transaction.valid %}class="invalid"{% endif %}>Transaction {{ transaction }}{% if not transaction.valid %} INVALID{% endif %}</h4>
+                {% if not transaction.valid %}
+                    <ul>
+                        {% for error in transaction.errors %}
+
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                <pre>{% for record in transaction.records %}{{ record.to_html|safe }}<br/>{% endfor %}
+                </pre>
+            {% endfor %}
+
+        {% endfor %}
+    {%  endblock %}

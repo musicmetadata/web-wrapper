@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'territories.apps.TerritoriesConfig',
+    'edi.apps.EdiConfig',
 ]
 
 MIDDLEWARE = [

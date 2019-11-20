@@ -3,15 +3,17 @@
   <head>
     <meta charset="utf-8">
     <title>{{ title }}</title>
-      <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47" crossorigin="anonymous">
+    <style>{% block style %}{% endblock %}</style>
   </head>
   <body style="margin: 2% 5%">
     <h1>{{ title|default:"Just a demo site." }}</h1>
     <div class="pure-g">
         <div class="pure-u-1">
-            {%  block content %}
+            {% block content %}
                 <h2>Available demos</h2>
                 <ul><li><a href="{% url 'territory_list' %}">CIS Territory Calculations</a></li>
+                <ul><li><a href="{% url 'edi_import' %}">Basic EDI Parsing and Validation</a></li>
                 <li>more soon...</li></ul>
                 <h2>Repositories</h2>
                 <p>Code available on <a href="https://github.com/musicmetadata" target="_blank">GitHub</a>, open source, MIT license</p>

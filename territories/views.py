@@ -19,6 +19,7 @@ class TerritoryForm(forms.Form):
         required = False
     )
 
+
 class BaseTerritoryFormset(forms.BaseFormSet):
     def clean(self):
         if any(self.errors):
@@ -43,6 +44,7 @@ TerritoryFormSet = forms.formset_factory(
     TerritoryForm,
     formset=BaseTerritoryFormset,
     extra=10)
+
 
 class TerritoryListView(View):
     def get(self, request):
