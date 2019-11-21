@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django import forms
-from music_metadata.territories import TerritoryList, Territory
+from music_metadata.territories.territory import Territory
+from music_metadata.territories.territory_list import TerritoryList
 from django.views import View
 
 
