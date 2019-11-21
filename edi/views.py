@@ -7,6 +7,7 @@ from django.views import View
 class FileForm(forms.Form):
     file = forms.FileField()
 
+
 class EdiImportView(View):
     def get(self, request):
         form = FileForm()

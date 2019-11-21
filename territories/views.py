@@ -13,11 +13,11 @@ class TerritoryForm(forms.Form):
         ]
     )
     territory = forms.ChoiceField(
-        choices= [(None, '-')] +
+        choices=[(None, '-')] +
             sorted(
                 [(k, str(t)) for k, t  in Territory.all_tis_n.items()],
-                key=lambda x: x[1] ),
-        required = False
+                key=lambda x: x[1]),
+        required=False
     )
 
 
