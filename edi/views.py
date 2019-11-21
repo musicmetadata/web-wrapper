@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django import forms
-from music_metadata.edi import EDIFile
+from music_metadata.edi.file import EDIFile
 from django.views import View
 
 
