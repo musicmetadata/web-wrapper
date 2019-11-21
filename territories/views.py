@@ -6,6 +6,14 @@ from django.views import View
 
 
 class TerritoryForm(forms.Form):
+
+    def get_choices():
+        choices = [(None, '-')]
+        choices += sorted(
+            [(k, str(t)) for k, t in Territory.all_tis_n.items()],
+            key=lambda x: x[1])
+        return choices
+
     include_or_exclude = forms.ChoiceField(
         choices=[
             ('I', 'Include'),
@@ -13,10 +21,7 @@ class TerritoryForm(forms.Form):
         ]
     )
     territory = forms.ChoiceField(
-        choices=[(None, '-')] +
-            sorted(
-                [(k, str(t)) for k, t  in Territory.all_tis_n.items()],
-                key=lambda x: x[1]),
+        choices=get_choices,
         required=False
     )
 
