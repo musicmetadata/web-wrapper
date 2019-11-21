@@ -1,5 +1,7 @@
 # Music Metadata - Web Wrapper
 
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
 A minimalist Django implementation, requiring no database, and no environment variables. For a deployment on Heroku/Dokku.
 
 Made as a web-based proof of concept for Python libraries:
@@ -8,5 +10,3 @@ Made as a web-based proof of concept for Python libraries:
 * Music Metadata - EDI: https://github.com/musicmetadata/edi
 
 More to come...
-
-Demo is currently available: https://music-metadata.herokuapp.com/. Please note, it is on a free account, which may take up to 30 seconds to start.
