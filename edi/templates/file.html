@@ -1,9 +1,11 @@
 {% extends "base.html" %}
     {%  block style %}
-        span.transaction_sequence_number {color: #666}
-        span.record_sequence_number {color: #999}
-        span.invalid {background-color: #c99}
-        h4.invalid {color: #c00}
+        span.transaction_sequence_number {color: #357}
+        span.record_sequence_number {color: #753}
+        .field.invalid {background-color: #f66}
+        .record.invalid .field:first-child {background-color: #f66}
+        .record .field:nth-child(even) {color:#666}
+
     {%  endblock %}
     {%  block content %}
         <p>Python code, available as open source: <a href="https://github.com/musicmetadata" target="_blank">https://github.com/musicmetadata</a></p>
@@ -20,22 +22,45 @@
                 </tbody>
             </table>
         </form>
-        <h2>File: {{ edi_file }}</h2>
-        {% for group in edi_file.get_groups %}
-            <h3>Group: {{ group }}</h3>
-            {% for transaction in group.get_transactions_with_errors %}
-                <h4 {% if not transaction.valid %}class="invalid"{% endif %}>Transaction {{ transaction }}{% if not transaction.valid %} INVALID{% endif %}</h4>
-                {% if not transaction.valid %}
-                    <ul>
-                        {% for error in transaction.errors %}
+        {% with edi_file.list_groups as groups %}
+            <h2{% if not edi_file.valid %} class="invalid"{% endif %}>File: {{ edi_file }}{% if not edi_file.valid %} INVALID{% endif %}</h2>
+            <table class="pure-table">
+                <tr>
+                    <th>Header: </th>
+                    <td><pre>{{ edi_file.get_header.to_html|safe }}</pre></td>
+                </tr>
+                <tr>
+                    <th>Trailer: </th>
+                    <td><pre>{{ edi_file.get_trailer.to_html|safe }}</pre></td>
+                </tr>
+            </table>
 
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                <pre>{% for record in transaction.records %}{{ record.to_html|safe }}<br/>{% endfor %}
-                </pre>
-            {% endfor %}
-
+            {% for group in groups%}
+                {% with group.list_transactions as transactions %}
+                    <h3{% if not group.valid %} class="invalid"{% endif %}>Group: {{ group }}{% if not group.valid %} - INVALID{% endif %}</h3>
+                     <table class="pure-table">
+                        <tr>
+                            <th>Header: </th>
+                            <td><pre>{{ group.get_header.to_html|safe }}</pre></td>
+                        </tr>
+                        <tr>
+                            <th>Trailer: </th>
+                            <td><pre>{{ group.get_trailer.to_html|safe }}</pre></td>
+                        </tr>
+                    </table>
+                    {% for transaction in transactions %}
+                        <h4 {% if not transaction.valid %}class="invalid"{% endif %}>Transaction {{ transaction }}{% if not transaction.valid %} - INVALID{% endif %}</h4>
+                        {% if not transaction.valid %}
+                            <ul>
+                                {% for error in transaction.errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        <pre>{% for record in transaction.records %}{{ record.to_html|safe }}<br/>{% endfor %}
+                        </pre>
+                    {% endfor %}
+                {% endwith %}
         {% endfor %}
+        {% endwith %}
     {%  endblock %}

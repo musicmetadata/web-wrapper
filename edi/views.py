@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django import forms
-from music_metadata.edi.file import EDIFile
+from music_metadata.edi.file import EdiFile
 from django.views import View
 
 
@@ -19,7 +19,7 @@ class EdiImportView(View):
         form = FileForm(request.POST, request.FILES)
         if form.is_valid():
             f = request.FILES['file']
-            edi_file = EDIFile(f)
+            edi_file = EdiFile(f)
             edi_file.seek(0)
             edi_file.reconfigure(encoding='latin1')
 
