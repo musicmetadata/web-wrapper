@@ -18,7 +18,7 @@ class EdiImportView(View):
     def get(self, request):
         form = FileForm()
         return render(request, 'file.html', {
-            'title': 'EDI (CWR/CRD) file conversion',
+            'title': 'EDI (CWR/CRD) parsing and basic validation',
             'form': form})
 
     def post(self, request, *args, **kwargs):
@@ -28,9 +28,10 @@ class EdiImportView(View):
             edi_file = EdiFile(f)
             edi_file.seek(0)
             edi_file.reconfigure(encoding='latin1')
-
+        else:
+            edi_file = None
         return render(request, 'file.html', {
-            'title': 'EDI (CWR/CRD) basic parsing and validation',
+            'title': 'EDI (CWR/CRD) parsing and basic validation',
             'form': form,
             'edi_file': edi_file
         })
