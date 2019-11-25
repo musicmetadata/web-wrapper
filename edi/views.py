@@ -1,6 +1,12 @@
 from django.shortcuts import render
 from django import forms
 from music_metadata.edi.file import EdiFile
+try:
+    # not part of open source yet
+    # without it, just basic EDI processing is available
+    from music_metadata.cwr2.file import Cwr2File
+except:
+    pass
 from django.views import View
 
 
