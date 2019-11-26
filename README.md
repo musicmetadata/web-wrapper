@@ -10,3 +10,5 @@ Made as a web-based proof of concept for Python libraries:
 * Music Metadata - EDI: https://github.com/musicmetadata/edi
 
 More to come...
+
+This branch will not depoy, as it is uses private dependencies!
