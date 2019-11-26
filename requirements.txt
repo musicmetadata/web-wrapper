@@ -1,3 +1,4 @@
+setuptools==40.8.0
 Django==2.2.7
 music-metadata-territories>=19rc2
 music-metadata-edi>=19a3
