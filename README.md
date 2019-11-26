@@ -11,4 +11,4 @@ Made as a web-based proof of concept for Python libraries:
 
 More to come...
 
-This branch will not depoy, as it is uses private dependencies!
+This branch will not deploy, as it is uses private dependencies!
