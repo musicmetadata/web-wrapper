@@ -1,1 +1,1 @@
-web: gunicorn web_wrapper.wsgi
+web: gunicorn -t 300 web_wrapper.wsgi
