@@ -17,8 +17,11 @@
         <li class="pure-menu-item"><a href="{% url 'territory_list' %}"
                                       class="pure-menu-link">CIS Territory</a>
         </li>
-        <li class="pure-menu-item"><a href="{% url 'edi_import' %}"
+        <li class="pure-menu-item"><a href="{% url 'visual_validator' %}"
                                       class="pure-menu-link">EDI Parsing</a>
+        </li>
+        <li class="pure-menu-item"><a href="{% url 'edi_to_json' %}"
+                                      class="pure-menu-link">EDI to JSON</a>
         </li>
     </ul>
 </div>
@@ -41,8 +44,9 @@
                 <ul>
                     <li><a href="{% url 'territory_list' %}">CIS territory
                         calculations</a></li>
-                    <li><a href="{% url 'edi_import' %}">EDI parsing and basic
-                        validation</a></li>
+                    <li><a href="{% url 'visual_validator' %}">EDI parsing and
+                        visual validation</a></li>
+                    <li><a href="{% url 'edi_to_json' %}">EDI to JSON</a></li>
                     <li>more soon...</li>
                 </ul>
                 <h2>Repositories</h2>

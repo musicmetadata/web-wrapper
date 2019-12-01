@@ -1,6 +1,8 @@
 from django.urls import path
-from .views import EdiImportView
+from .views import VisualValidatorView, ToJson
 
 urlpatterns = [
-    path('', EdiImportView.as_view(), name='edi_import'),
+    path('visualvalidator/', VisualValidatorView.as_view(),
+         name='visual_validator'),
+    path('json/', ToJson.as_view(), name='edi_to_json'),
 ]
