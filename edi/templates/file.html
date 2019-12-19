@@ -1,12 +1,83 @@
 {% extends "base.html" %}
     {%  block style %}
-        span.transaction_sequence_number {color: #357}
-        span.record_sequence_number {color: #753}
         .field.invalid {background-color: #fc6}
         .record.invalid .field.invalid {background-color: #f66}
         .record.invalid .field:first-child {background-color: #f66}
-        .record .field:nth-child(even) {color:#666}
+		.record.invalid {border-bottom: 1px solid #f66;}
+		.record {margin: 0; font-family: monospace; white-space: pre; margin-bottom: 3px}
 
+        .field {color: #999}
+		.field.record_type {font-weight: bold; padding: 0 0.1em 0 0;}
+		.field.listfield:nth-child(odd),
+		.field.iswc:nth-child(odd),
+		.field.booleanfield:nth-child(odd),
+		.field.flagfield:nth-child(odd) {color: #930;}
+		.field.listfield,
+		.field.iswc,
+		.field.booleanfield,
+		.field.flagfield  {color: #039;}
+		.field.datefield:nth-child(odd),
+		.field.timefield:nth-child(odd),
+		.field.numericfield:nth-child(odd) {color: #903;}
+		.field.datefield,
+		.field.timefield,
+		.field.numericfield {color: #309;}
+        .field.submitter_work_number,
+		.field.titlefield {color: #606;}
+		.field.namefield {color: #333;}
+		.field.constantfield {color: #999;}
+		.hdr .field.record_type,
+		.trl .field.record_type {color: #606;}
+		.grh .field.record_type,
+		.grt .field.record_type {color: #C0C;}
+        .grh .transaction_type,
+		.ack .field.record_type,
+		.nwr .field.record_type,
+		.rev .field.record_type {color: #900;}
+		.spu .field.record_type,
+		.spt .field.record_type {color: #060;}
+		.swr .field.record_type,
+		.swt .field.record_type,
+		.pwr .field.record_type {color: #33C;}
+		.opu .field.record_type,
+		.owr .field.record_type {color: #666;}
+		.field.transaction_sequence_number,
+		.field.publisher_sequence_number,
+		.field.sequence_number {color: #669 !important}
+		.field.record_sequence_number {color: #966 !important}
+		.spu .field.interested_party_number,
+		.spu .field.ipinamenumber,
+		.spu .field.ipibasenumber,
+		.spt .field.interested_party_number,
+		.opu .field.interested_party_number,
+		.opu .field.ipinamenumber,
+		.opu .field.ipibasenumber,
+		.pwr .field.publisher_ip_number,
+		.spt .field.tisfield,
+		.swt .field.tisfield {
+			color: #060;
+		}
+		.swr .field.alphafield.interested_party_number,
+		.swr .field.ipinamenumber,
+		.swr .field.ipibasenumber,
+		.owr .field.alphafield.interested_party_number,
+		.owr .field.ipinamenumber,
+		.owr .field.ipibasenumber,
+		.swt .field.alphafield.interested_party_number,
+		.pwr .field.alphafield.writer_ip_number {
+			color: #33C;
+		}
+        .group_count, .group_id,
+		.pr_ownership_share,
+		.pr_collection_share {color: #090;}
+        .transaction_count,
+		.mr_ownership_share,
+		.mr_collection_share {color: #069;}
+        .record_count,
+		.sr_ownership_share,
+		.sr_collection_share {color: #630;}
+		.opu .sharefield,
+		.owr .sharefield {color: #666;}
     {%  endblock %}
     {%  block content %}
         <p>Python code, available as open source: <a href="https://github.com/musicmetadata" target="_blank">https://github.com/musicmetadata</a></p>
