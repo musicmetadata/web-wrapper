@@ -44,15 +44,23 @@ class VisualValidatorView(View):
         })
 
 
+class ToJsonFileForm(FileForm):
+    verbosity = forms.ChoiceField(choices=(
+        (0, 'Minimal'),
+        (1, 'Standard'),
+        (2, 'Extreme'),
+    ))
+
+
 class ToJson(View):
     def get(self, request):
-        form = FileForm()
+        form = ToJsonFileForm()
         return render(request, 'file.html', {
             'title': 'EDI to JSON conversion',
             'form': form})
 
     @staticmethod
-    def to_json(edi_file):
+    def to_json(edi_file, verbosity):
         yield '{"work_registrations": [\n'
         errors = []
         for i, group in enumerate(edi_file.get_groups()):
@@ -62,7 +70,9 @@ class ToJson(View):
                 if j:
                     yield ', '
                 yield json.dumps(
-                    transaction.to_dict(), cls=DjangoJSONEncoder, indent=4)
+                    transaction.to_dict(verbosity),
+                    cls=DjangoJSONEncoder,
+                    indent=4)
             errors += group.errors
         yield '],\n"file": '
         file_data = OrderedDict()
@@ -76,13 +86,13 @@ class ToJson(View):
 
 
     def post(self, request, *args, **kwargs):
-        form = FileForm(request.POST, request.FILES)
+        form = ToJsonFileForm(request.POST, request.FILES)
         if form.is_valid():
             f = request.FILES['file']
             edi_file = Cwr2File(f)
             edi_file.seek(0)
             edi_file.reconfigure(encoding='latin1')
-            d = self.to_json(edi_file)
+            d = self.to_json(edi_file, int(form.cleaned_data['verbosity']))
             response = StreamingHttpResponse(d)
             response['Content-Type'] = 'application/json'
             response['Content-Disposition'] = f'attachment; filename="{ edi_file.name }.json"'
