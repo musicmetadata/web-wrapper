@@ -9,7 +9,9 @@ try:
     # without it, just basic EDI processing is available
     from music_metadata.cwr2.file import Cwr2File
 except:
-    raise
+    if settings.DEBUG:
+        raise
+    Cwr2File = EdiFile
 from django.views import View
 from collections import OrderedDict
 import json
