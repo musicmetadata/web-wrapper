@@ -1,7 +1,7 @@
 setuptools==40.8.0
 Django==2.2.7
 music-metadata-territories>=19rc2
-music-metadata-edi>=19a7
+music-metadata-edi>=19b2
 # git+ssh://git@github.com/musicmetadata/edi#egg=music_metadata_edi
 git+ssh://git@github.com/matijakolaric/cwr2#egg=music_metadata_cwr2
 pytz==2019.3
