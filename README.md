@@ -1,6 +1,6 @@
 # Web Wrapper for Music Metadata Libraries
 
-A web application, based on Django, serving as a wrapper for following libraries:
+A web application, based on Django, serving as a wrapper for these libraries:
 
 * Music Metadata - Territories: https://github.com/musicmetadata/territories
 * Music Metadata - EDI: https://github.com/musicmetadata/edi
