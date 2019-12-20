@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import StreamingHttpResponse
+from django.http import StreamingHttpResponse, HttpResponse
 from django import forms
 from music_metadata.edi.file import EdiFile
 from django.conf import settings
@@ -49,7 +49,7 @@ class ToJsonFileForm(FileForm):
         (0, 'Minimal'),
         (1, 'Standard'),
         (2, 'Extreme'),
-    ))
+    ), initial=1)
 
 
 class ToJson(View):
@@ -61,18 +61,32 @@ class ToJson(View):
 
     @staticmethod
     def to_json(edi_file, verbosity):
+        indent = 4 if verbosity else None
         yield '{"work_registrations": [\n'
         errors = []
         for i, group in enumerate(edi_file.get_groups()):
             if i:
-                yield ', '
-            for j, transaction in enumerate (group.get_transactions()):
+                yield ',\n'
+            for j, transaction in enumerate(group.get_transactions()):
                 if j:
-                    yield ', '
-                yield json.dumps(
-                    transaction.to_dict(verbosity),
-                    cls=DjangoJSONEncoder,
-                    indent=4)
+                    yield ',\n'
+                try:
+                    yield json.dumps(
+                        transaction.to_dict(verbosity),
+                        cls=DjangoJSONEncoder,
+                        indent=indent)
+                except Exception as e:
+                    yield json.dumps(
+                        {
+                            'valid': False,
+                            'errors': [
+                                'Registration not parsable',
+                                str(e)
+                            ],
+                            'raw_data': transaction.lines
+                        },
+                        indent=indent
+                    )
             errors += group.errors
         yield '],\n"file": '
         file_data = OrderedDict()
@@ -81,9 +95,8 @@ class ToJson(View):
         file_data['work_count'] = edi_file.transaction_count
         file_data['line_count'] = edi_file.record_count
         file_data['errors'] = [str(e) for e in (edi_file.file_errors + errors)]
-        yield json.dumps(file_data, indent=4)
+        yield json.dumps(file_data, indent=indent)
         yield '}'
-
 
     def post(self, request, *args, **kwargs):
         form = ToJsonFileForm(request.POST, request.FILES)
@@ -93,10 +106,12 @@ class ToJson(View):
             edi_file.seek(0)
             edi_file.reconfigure(encoding='latin1')
             d = self.to_json(edi_file, int(form.cleaned_data['verbosity']))
-            response = StreamingHttpResponse(d)
+            if settings.DEBUG:
+                response = HttpResponse(d)
+            else:
+                response = StreamingHttpResponse(d)
+            response['Content-Disposition'] = (
+                f'attachment; filename="{ edi_file.name }.json"')
             response['Content-Type'] = 'application/json'
-            response['Content-Disposition'] = f'attachment; filename="{ edi_file.name }.json"'
             return response
-        else:
-            edi_file = None
         return self.get(request)
