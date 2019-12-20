@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from django.http import StreamingHttpResponse, HttpResponse
+from django.http import (
+    HttpResponse, StreamingHttpResponse, HttpResponseBadRequest)
 from django import forms
 from music_metadata.edi.file import EdiFile
 from django.conf import settings
@@ -11,7 +12,6 @@ try:
 except:
     if settings.DEBUG:
         raise
-    Cwr2File = EdiFile
 from django.views import View
 from collections import OrderedDict
 import json
@@ -102,10 +102,13 @@ class ToJson(View):
         form = ToJsonFileForm(request.POST, request.FILES)
         if form.is_valid():
             f = request.FILES['file']
-            edi_file = Cwr2File(f)
-            edi_file.seek(0)
-            edi_file.reconfigure(encoding='latin1')
-            d = self.to_json(edi_file, int(form.cleaned_data['verbosity']))
+            try:
+                edi_file = EdiFile(f)
+                edi_file.seek(0)
+                edi_file.reconfigure(encoding='latin1')
+                d = self.to_json(edi_file, int(form.cleaned_data['verbosity']))
+            except Exception as e:
+                return HttpResponseBadRequest('This file can not be processed.')
             if settings.DEBUG:
                 response = HttpResponse(d)
             else:
