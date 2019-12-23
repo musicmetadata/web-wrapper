@@ -96,6 +96,10 @@
                 </tbody>
             </table>
         </form>
+        {% if pre %}
+            <pre><code>{{ pre }}</code></pre>
+            <script>hljs.initHighlightingOnLoad();</script>
+        {% endif %}
         {% if edi_file %}
             {% with edi_file.list_groups as groups %}
                 <h2{% if not edi_file.valid %} class="invalid"{% endif %}>File: {{ edi_file }}{% if not edi_file.valid %} INVALID{% endif %}</h2>

@@ -50,9 +50,11 @@ class ToJsonFileForm(FileForm):
         (1, 'Standard'),
         (2, 'Extreme'),
     ), initial=1)
+    download = forms.BooleanField(initial=False, required=False)
 
 
 class ToJson(View):
+
     def get(self, request):
         form = ToJsonFileForm()
         return render(request, 'file.html', {
@@ -62,7 +64,11 @@ class ToJson(View):
     @staticmethod
     def to_json(edi_file, verbosity):
         indent = 4 if verbosity else None
-        yield '{"work_registrations": [\n'
+        yield '{\n\n'
+        submitter_data = edi_file.get_header().get_submitter_dict(verbosity)
+        yield '"submitter": '
+        yield json.dumps(submitter_data, cls=DjangoJSONEncoder, indent=indent)
+        yield ',\n\n"work_registrations": [\n'
         errors = []
         for i, group in enumerate(edi_file.get_groups()):
             if i:
@@ -88,15 +94,15 @@ class ToJson(View):
                         indent=indent
                     )
             errors += group.errors
-        yield '],\n"file": '
-        file_data = OrderedDict()
+        yield '\n],\n\n"file": '
+        file_data = edi_file.get_header().get_transmission_dict()
         file_data['name'] = edi_file.name
         file_data['valid'] = edi_file.valid
         file_data['work_count'] = edi_file.transaction_count
         file_data['line_count'] = edi_file.record_count
         file_data['errors'] = [str(e) for e in (edi_file.file_errors + errors)]
-        yield json.dumps(file_data, indent=indent)
-        yield '}'
+        yield json.dumps(file_data, cls=DjangoJSONEncoder, indent=indent)
+        yield '\n\n}'
 
     def post(self, request, *args, **kwargs):
         form = ToJsonFileForm(request.POST, request.FILES)
@@ -108,13 +114,22 @@ class ToJson(View):
                 edi_file.reconfigure(encoding='latin1')
                 d = self.to_json(edi_file, int(form.cleaned_data['verbosity']))
             except Exception as e:
+                if settings.DEBUG:
+                    raise
                 return HttpResponseBadRequest('This file can not be processed.')
-            if settings.DEBUG:
-                response = HttpResponse(d)
+            if form.cleaned_data['download']:
+                if settings.DEBUG:
+                    response = HttpResponse(d)
+                else:
+                    response = StreamingHttpResponse(d)
+                response['Content-Disposition'] = (
+                    f'attachment; filename="{ edi_file.name }.json"')
+                response['Content-Type'] = 'application/json'
+                return response
             else:
-                response = StreamingHttpResponse(d)
-            response['Content-Disposition'] = (
-                f'attachment; filename="{ edi_file.name }.json"')
-            response['Content-Type'] = 'application/json'
-            return response
+                return render(request, 'file.html', {
+                    'title': 'EDI to JSON conversion',
+                    'form': form,
+                    'pre': ''.join(d)
+                })
         return self.get(request)
