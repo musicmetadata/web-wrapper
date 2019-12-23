@@ -25,7 +25,7 @@ class VisualValidatorView(View):
     def get(self, request):
         form = FileForm()
         return render(request, 'file.html', {
-            'title': 'EDI (CWR/CRD) visual validation',
+            'title': 'Parsing and Visual Validation',
             'form': form})
 
     def post(self, request, *args, **kwargs):
@@ -38,7 +38,7 @@ class VisualValidatorView(View):
         else:
             edi_file = None
         return render(request, 'file.html', {
-            'title': f'EDI (CWR/CRD) visual validation: { edi_file.name }',
+            'title': f'Parsing and Visual Validation: { edi_file.name }',
             'form': form,
             'edi_file': edi_file
         })
@@ -58,7 +58,7 @@ class ToJson(View):
     def get(self, request):
         form = ToJsonFileForm()
         return render(request, 'file.html', {
-            'title': 'EDI to JSON conversion',
+            'title': 'CWR 2.x to JSON - Conversion with Validation',
             'form': form})
 
     @staticmethod
@@ -128,7 +128,9 @@ class ToJson(View):
                 return response
             else:
                 return render(request, 'file.html', {
-                    'title': 'EDI to JSON conversion',
+                    'title':
+                        'CWR 2.x (EDI) to JSON - Conversion with Validation: '
+                        f'{ edi_file.name }',
                     'form': form,
                     'pre': ''.join(d)
                 })

@@ -80,10 +80,8 @@
 		.owr .sharefield {color: #666;}
     {%  endblock %}
     {%  block content %}
-        <p>Python code, available as open source: <a href="https://github.com/musicmetadata" target="_blank">https://github.com/musicmetadata</a></p>
-        <p>This tool demonstrates basic functionality of <strong>edi</strong> repository: parsing and basic validation.</p>
-        <p>Only with extensions, not yet released as open-source, it can be useful. For more information, have a look at <a href="https://matijakolaric.com/free/cwr-x-validator/">Visual CWR Validator.</a></p>
-        <p>DATA IS PROCESSED ON THE FLY AND NOT BEING SAVED.</p>
+        <p>Python code, partly available as open source: <a href="https://github.com/musicmetadata" target="_blank">https://github.com/musicmetadata</a></p>
+        <p>UPLOADED DATA IS TEMPORARILY SAVED FOR PROCESSING AND DELETED WHEN THE RESPONSE IS SENT.</p>
         <form enctype="multipart/form-data" action="." method="post" class="pure-form">
             {% csrf_token %}
             <table class="pure-table">

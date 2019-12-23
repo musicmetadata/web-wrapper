@@ -20,10 +20,10 @@
                                       class="pure-menu-link">CIS Territory</a>
         </li>
         <li class="pure-menu-item"><a href="{% url 'visual_validator' %}"
-                                      class="pure-menu-link">EDI Parsing</a>
+                                      class="pure-menu-link">Visual Validator</a>
         </li>
         <li class="pure-menu-item"><a href="{% url 'edi_to_json' %}"
-                                      class="pure-menu-link">EDI to JSON</a>
+                                      class="pure-menu-link">CWR 2.x (EDI) to JSON</a>
         </li>
     </ul>
 </div>
@@ -33,22 +33,20 @@
         <div class="pure-u-1">
             {% block content %}
                 <p>The purpose of this web site is
-                    to provide some web-based experience of several music
+                    to provide web-based experience for several music
                     metadata libraries written in Python.</p>
                 <p>Although the demo is targeting a much wider audience, the
                     libraries are to be used by developers.</p>
                 <p>These libraries will provide open source replacements for
                     the tools available at
-                    <a href="https://matijakolaric.com">matijakolaric.com</a>
-                    Features and deadline are agreed only with sponsors.</p>
-                <p>Feel free to become a sponsor!</p>
+                    <a href="https://matijakolaric.com">matijakolaric.com</a>.</p>
                 <h2>Available demos</h2>
                 <ul>
                     <li><a href="{% url 'territory_list' %}">CIS territory
                         calculations</a></li>
-                    <li><a href="{% url 'visual_validator' %}">EDI parsing and
-                        visual validation</a></li>
-                    <li><a href="{% url 'edi_to_json' %}">EDI to JSON</a></li>
+                    <li><a href="{% url 'visual_validator' %}">Parsing and
+                        visual validation for CWR 2.x (EDI)</a></li>
+                    <li><a href="{% url 'edi_to_json' %}">Converting CWR 2.x (EDI) into JSON with validation</a></li>
                     <li>more soon...</li>
                 </ul>
                 <h2>Repositories</h2>
