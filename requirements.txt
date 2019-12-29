@@ -3,7 +3,7 @@ Django==2.2.9
 music-metadata-territories==19
 music-metadata-edi==19
 # git+ssh://git@github.com/musicmetadata/edi#egg=music_metadata_edi
-git+ssh://git@github.com/matijakolaric/cwr2#egg=music_metadata_cwr2
+git+ssh://git@github.com/matijakolaric/cwr2@7c445228a87724d4a3b4b0e9d8c36087409a8c62#egg=music_metadata_cwr2
 whitenoise
 gunicorn
 
