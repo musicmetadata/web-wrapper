@@ -17,6 +17,7 @@ jobs:
         repository: matijakolaric/cwr2
         token: ${{ secrets.build }}
         ref: master
+        path: cwr2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
       with:
