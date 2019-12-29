@@ -35,10 +35,12 @@ class VisualValidatorView(View):
             edi_file = EdiFile(f)
             edi_file.seek(0)
             edi_file.reconfigure(encoding='latin1')
+            title = f'Parsing and Visual Validation: { edi_file.name }'
         else:
             edi_file = None
+            title = 'Parsing and Visual Validation'
         return render(request, 'file.html', {
-            'title': f'Parsing and Visual Validation: { edi_file.name }',
+            'title': title,
             'form': form,
             'edi_file': edi_file
         })
