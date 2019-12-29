@@ -1,2 +1,2 @@
-git+ssh://matijakolaric:${{ secrets.GITHUB_TOKEN }}@github.com/matijakolaric/cwr2#egg=music_metadata_cwr2
+git+ssh://matijakolaric:${{ secrets.build }}@github.com/matijakolaric/cwr2#egg=music_metadata_cwr2
 
