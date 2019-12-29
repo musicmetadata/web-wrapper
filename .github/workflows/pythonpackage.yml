@@ -14,13 +14,13 @@ jobs:
     steps:
     - name: Generic checkout
       uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.build }}
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      with:
-        repo-token: ${{ secrets.build }}
       run: |
         pip install -U -r requirements.txt
     - name: Lint with flake8
