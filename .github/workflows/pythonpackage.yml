@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       with:
-        repository: matijakolaric/cwr2.git
+        repository: matijakolaric/cwr2
         repo-token: ${{ secrets.build }}
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v1
