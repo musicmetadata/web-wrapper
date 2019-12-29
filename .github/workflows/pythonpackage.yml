@@ -19,9 +19,9 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-    with:
-      repo-token: ${{ secrets.build }}
-    run: |
+      with:
+        repo-token: ${{ secrets.build }}
+      run: |
         pip install -U -r requirements.txt
     - name: Lint with flake8
       run: |
