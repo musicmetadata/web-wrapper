@@ -203,9 +203,7 @@ class SocietyListView(View):
                     title = 'Not a CWR file'
             except Exception as e:
                 title = str(e)
-                raise
         else:
-            edi_file = None
             title = 'List societies from a CWR file'
         return render(request, 'file.html', {
             'title': title,
