@@ -7,8 +7,6 @@
           href="https://unpkg.com/purecss@1.0.1/build/pure-min.css"
           integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47"
           crossorigin="anonymous">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/ocean.min.css">
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
     <style>{% block style %}{% endblock %}</style>
 </head>
 <body>
@@ -24,6 +22,9 @@
         </li>
         <li class="pure-menu-item"><a href="{% url 'edi_to_json' %}"
                                       class="pure-menu-link">CWR 2.x (EDI) to JSON</a>
+        </li>
+        <li class="pure-menu-item"><a href="{% url 'societylist' %}"
+                                      class="pure-menu-link">Societies in CWR 2.x</a>
         </li>
     </ul>
 </div>
@@ -47,6 +48,7 @@
                     <li><a href="{% url 'visual_validator' %}">Parsing and
                         visual validation for CWR 2.x (EDI)</a></li>
                     <li><a href="{% url 'edi_to_json' %}">Converting CWR 2.x (EDI) into JSON with validation</a></li>
+                    <li><a href="{% url 'societylist' %}">List societies in a CWR file</a></li>
                     <li>more soon...</li>
                 </ul>
                 <h2>Repositories</h2>

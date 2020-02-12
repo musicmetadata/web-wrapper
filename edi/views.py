@@ -3,6 +3,7 @@ from django.http import (
     HttpResponse, StreamingHttpResponse, HttpResponseBadRequest)
 from django import forms
 from music_metadata.edi.file import EdiFile
+from music_metadata.cwr2.fields import SocietyField
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 try:
@@ -137,3 +138,78 @@ class ToJson(View):
                     'pre': ''.join(d)
                 })
         return self.get(request)
+
+
+class SocietyListView(View):
+
+    def get(self, request):
+        form = FileForm()
+        return render(request, 'file.html', {
+            'title': 'List societies from a CWR file',
+            'form': form})
+
+    def process_cwr2(self, edi_file):
+        combinations = dict()
+        for group in edi_file.get_groups():
+            for transaction in group.get_transactions():
+                for record in transaction.records:
+                    if record.record_type in ['SPU', 'OPU', 'SWR', 'OWR']:
+                        if 'pr_affiliation_society_number' in record.errors:
+                            record.pr_affiliation_society_number = None
+                        if 'mr_affiliation_society_number' in record.errors:
+                            record.mr_affiliation_society_number = None
+                        if 'sr_affiliation_society_number' in record.errors:
+                            record.sr_affiliation_society_number = None
+                        d = (
+                            record.pr_affiliation_society_number,
+                            SocietyField().verbose(
+                                record.pr_affiliation_society_number),
+                            record.mr_affiliation_society_number,
+                            SocietyField().verbose(
+                                record.mr_affiliation_society_number),
+                            record.sr_affiliation_society_number,
+                            SocietyField().verbose(
+                                record.sr_affiliation_society_number)
+                        )
+                        if d in combinations:
+                            combinations[d] += 1
+                        else:
+                            combinations[d] = 1
+        yield (
+            'PR CODE', 'PR NAME',
+            'MR CODE', 'MR NAME',
+            'SR CODE', 'SR NAME',
+            'COUNT'
+        )
+        keys = list(combinations.keys())
+        keys.sort(
+            key=lambda x: (x[0] or '') + (x[2] or '')
+        )
+        for key in keys:
+            yield list(key) + [combinations[key]]
+
+    def post(self, request, *args, **kwargs):
+        form = FileForm(request.POST, request.FILES)
+        sorted_combinations = None
+        if form.is_valid():
+            f = request.FILES['file']
+            try:
+                edi_file = EdiFile(f)
+                if isinstance(edi_file, Cwr2File):
+                    title = (
+                        f'{f.name} by '
+                        f'Sender: {edi_file.get_header().submitter_name}')
+                    sorted_combinations = list(self.process_cwr2(edi_file))
+                else:
+                    title = 'Not a CWR file'
+            except Exception as e:
+                title = str(e)
+                raise
+        else:
+            edi_file = None
+            title = 'List societies from a CWR file'
+        return render(request, 'file.html', {
+            'title': title,
+            'form': form,
+            'table': sorted_combinations
+        })

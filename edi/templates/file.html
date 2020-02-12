@@ -96,7 +96,6 @@
         </form>
         {% if pre %}
             <pre><code>{{ pre }}</code></pre>
-            <script>hljs.initHighlightingOnLoad();</script>
         {% endif %}
         {% if edi_file %}
             {% with edi_file.list_groups as groups %}
@@ -140,5 +139,23 @@
                     {% endwith %}
             {% endfor %}
             {% endwith %}
+        {% endif %}
+        {% if table %}
+            <br>
+            <table class="pure-table">
+                {% for row in table %}
+                    <tr>
+                        {% for field in row %}
+                            {% if forloop.parentloop.counter0 == 0 %}
+                                <th>{{ field|default:'' }}</th>
+                            {% else %}
+                                <td>{{ field|default:'' }}</td>
+                            {% endif %}
+                        {% endfor %}
+
+                    </tr>
+                {% endfor %}
+
+            </table>
         {% endif %}
     {%  endblock %}
