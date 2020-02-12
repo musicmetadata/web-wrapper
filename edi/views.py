@@ -3,18 +3,17 @@ from django.http import (
     HttpResponse, StreamingHttpResponse, HttpResponseBadRequest)
 from django import forms
 from music_metadata.edi.file import EdiFile
-from music_metadata.cwr2.fields import SocietyField
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 try:
     # not part of open source yet
     # without it, just basic EDI processing is available
     from music_metadata.cwr2.file import Cwr2File
+    from music_metadata.cwr2.fields import SocietyField
 except:
     if settings.DEBUG:
         raise
 from django.views import View
-from collections import OrderedDict
 import json
 
 
