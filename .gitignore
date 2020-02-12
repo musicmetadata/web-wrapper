@@ -105,3 +105,6 @@ venv.bak/
 
 # pycharm
 .idea/
+
+# hack
+music_metadata/

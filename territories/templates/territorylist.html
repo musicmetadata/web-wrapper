@@ -1,6 +1,8 @@
 {% extends "base.html" %}
     {%  block content %}
-        <p>Python code, available as open source: <a href="https://github.com/musicmetadata" target="_blank">https://github.com/musicmetadata</a></p>
+        <p>Territory Information System (TIS) by CISAC provides complex territorial structures, but the official documentation is vague.</p>
+        <p><a href="https://github.com/musicmetadata" target="_blank">Music Metadata - Territories</a> is an open-source Python library for simpler integration into other software.</p>
+        <p>This tool provides a simple web-based experience for its functionality.</p>
         <form action="." method="post" class="pure-form">
             {% csrf_token %}
             {{ formset.management_form }}
