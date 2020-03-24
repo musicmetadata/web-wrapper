@@ -25,21 +25,37 @@ class TerritoryForm(forms.Form):
         required=False
     )
 
+    value = forms.IntegerField(
+        required=False
+    )
+
 
 class BaseTerritoryFormset(forms.BaseFormSet):
+    def __init__(self, *args, **kwargs):
+        super().__init__( *args, **kwargs)
+        self.territory_list = None
+
     def clean(self):
         if any(self.errors):
             return
         tl = TerritoryList()
+        func = tl.include
+        for form in self.forms:
+            if form.cleaned_data.get('value'):
+                func = tl.add
         for form in self.forms:
             ie = form.cleaned_data.get('include_or_exclude')
             t = form.cleaned_data.get('territory')
+            v = form.cleaned_data.get('value')
             if not t:
                 continue
             try:
                 if ie == 'I':
-                    tl.include(Territory.get(t))
+                    func(Territory.get(t), v)
                 else:
+                    if v:
+                        form.add_error(
+                            None, 'Value must be 0 or empty in excl.')
                     tl.exclude(Territory.get(t))
             except ValueError as e:
                 form.add_error(None, str(e))
