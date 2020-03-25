@@ -66,7 +66,7 @@ class ToJson(View):
 
     @staticmethod
     def to_json(edi_file, verbosity):
-        indent = 4 if verbosity else None
+        indent = 4 if verbosity or settings.DEBUG else None
         yield '{\n\n'
         submitter_data = edi_file.get_header().get_submitter_dict(verbosity)
         yield '"submitter": '
@@ -85,6 +85,7 @@ class ToJson(View):
                         cls=DjangoJSONEncoder,
                         indent=indent)
                 except Exception as e:
+                    raise
                     yield json.dumps(
                         {
                             'valid': False,
