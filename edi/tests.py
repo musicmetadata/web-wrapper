@@ -4,6 +4,7 @@ from django.urls import reverse
 from music_metadata.edi.tests import CWR2_PATH, CWR3_PATH
 import json
 
+
 class EdiTest(SimpleTestCase):
     def test_urlpatterns(self):
         for urlpattern in urlpatterns:

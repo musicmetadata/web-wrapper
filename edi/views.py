@@ -118,8 +118,6 @@ class ToJson(View):
                 edi_file.reconfigure(encoding='latin1')
                 d = self.to_json(edi_file, int(form.cleaned_data['verbosity']))
             except Exception as e:
-                if settings.DEBUG:
-                    raise
                 return HttpResponseBadRequest('This file can not be processed.')
             if form.cleaned_data['download']:
                 if settings.DEBUG:
