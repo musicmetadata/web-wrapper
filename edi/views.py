@@ -14,20 +14,107 @@ except:
     if settings.DEBUG:
         raise
 from django.views import View
-from collections import OrderedDict
+from collections import OrderedDict, Iterable
 import json
+import csv
+
 
 
 class FileForm(forms.Form):
     file = forms.FileField()
 
 
+class CsvOverview(View):
+    class Echo:
+        """An object that implements just the write method of the file-like
+        interface.
+        """
+
+        def write(self, value):
+            """Write the value by returning it, instead of storing in a
+            buffer."""
+            return value
+
+    def get(self, request):
+        form = FileForm()
+        return render(request, 'file.html', {
+            'title': 'CWR 2.x to CSV - Conversion with Validation',
+            'form': form})
+
+    def stream_csv(self, edi_file):
+        fields = (
+            'work_title',
+            'submitter_work_number',
+            'iswc',
+            'musical_work_distribution_category',
+            'version_type',
+            'writers',
+            'valid',
+        )
+        yield fields
+        for group in edi_file.get_groups():
+            for transaction in group.get_transactions():
+                d = transaction.to_dict(0)
+                out = []
+                for field in fields:
+                    value = d.get(field, '')
+                    if isinstance(value, dict):
+                        value = value.get('error', value.get('value', ''))
+                    if field == 'writers':
+                        out.append(' / '.join([
+                            w.get('writer_last_name', '<unknown>').strip()
+                            for w in value
+                        ]))
+                    else:
+                        out.append(value)
+                yield out
+
+    def post(self, request, *args, **kwargs):
+        form = FileForm(request.POST, request.FILES)
+        if form.is_valid():
+            f = request.FILES['file']
+            edi_file = EdiFile(f)
+            edi_file.seek(0)
+            edi_file.reconfigure(encoding='latin1')
+        else:
+            return render(request, 'file.html', {
+                'title': 'CWR 2.x to CSV - Conversion with Validation',
+                'form': form
+            })
+        pseudo_buffer = self.Echo()
+        writer = csv.writer(pseudo_buffer)
+        response = StreamingHttpResponse(
+            (writer.writerow(row) for row in self.stream_csv(edi_file)),
+            content_type="text/csv")
+        response['Content-Disposition'] = (
+            f'attachment; filename="{edi_file.name}.csv"')
+        return response
+
+
 class VisualValidatorView(View):
+
     def get(self, request):
         form = FileForm()
         return render(request, 'file.html', {
             'title': 'Parsing and Visual Validation',
             'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = FileForm(request.POST, request.FILES)
+        if form.is_valid():
+            f = request.FILES['file']
+            edi_file = EdiFile(f)
+            edi_file.seek(0)
+            edi_file.reconfigure(encoding='latin1')
+            title = f'Parsing and Visual Validation: { edi_file.name }'
+        else:
+            edi_file = None
+            title = 'Parsing and Visual Validation'
+        return render(request, 'file.html', {
+            'title': title,
+            'form': form,
+            'edi_file': edi_file
+        })
 
     def post(self, request, *args, **kwargs):
         form = FileForm(request.POST, request.FILES)
