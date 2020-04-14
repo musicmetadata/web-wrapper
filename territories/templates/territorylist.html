@@ -3,12 +3,13 @@
         <p>Territory Information System (TIS) by CISAC provides complex territorial structures, but the official documentation is vague.</p>
         <p><a href="https://github.com/musicmetadata" target="_blank">Music Metadata - Territories</a> is an open-source Python library for simpler integration into other software.</p>
         <p>This tool provides a simple web-based experience for its functionality.</p>
+        <p>If values are used in any rows, then the addition is performed.</p>
         <form action="." method="post" class="pure-form">
             {% csrf_token %}
             {{ formset.management_form }}
             <table class="pure-table">
                 <thead>
-                    <tr><th>Incl. / Excl.</th><th>Territory</th></tr>
+                    <tr><th>Incl. / Excl.</th><th>Territory</th><th>Share</th></tr>
                 </thead>
                 <tbody>
                     {% for form in formset %}
@@ -22,13 +23,13 @@
                         {% endif %}
                     {% endfor %}
                 </tbody>
-                <tr><td colspan="2"><input type="submit" value="Calculate" class="pure-button" style="width: 100%"></td></tr>
+                <tr><td colspan="3"><input type="submit" value="Calculate" class="pure-button" style="width: 100%"></td></tr>
             </table>
         </form>
         {% if formset.territory_list %}
             <h2>Included Territories</h2>
-            <pre>{% for t in formset.territory_list %}
-{{ t.tis_n|stringformat:"04s" }} - {{ t }}{% endfor %}
+            <pre>{% for t, o in formset.territory_list.items %}
+{{ t.tis_n|stringformat:"04s" }} - {{ t.name|stringformat:"-45s" }}: {{ o }}{% endfor %}
             </pre>
         {% endif %}
     {%  endblock %}
