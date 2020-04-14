@@ -19,9 +19,12 @@ import json
 import csv
 
 
-
 class FileForm(forms.Form):
     file = forms.FileField()
+
+
+class ShowErrorsFileForm(FileForm):
+    show_errors = forms.BooleanField(required=False)
 
 
 class CsvOverview(View):
@@ -36,12 +39,12 @@ class CsvOverview(View):
             return value
 
     def get(self, request):
-        form = FileForm()
+        form = ShowErrorsFileForm
         return render(request, 'file.html', {
             'title': 'CWR 2.x to CSV - Conversion with Validation',
             'form': form})
 
-    def stream_csv(self, edi_file):
+    def stream_csv(self, edi_file, show_errors=False):
         fields = (
             'work_title',
             'submitter_work_number',
@@ -54,23 +57,42 @@ class CsvOverview(View):
         yield fields
         for group in edi_file.get_groups():
             for transaction in group.get_transactions():
-                d = transaction.to_dict(0)
+                d = transaction.to_dict(1)
                 out = []
                 for field in fields:
                     value = d.get(field, '')
                     if isinstance(value, dict):
-                        value = value.get('error', value.get('value', ''))
+                        if show_errors and value.get('error'):
+                            error = value.get('error')
+                        else:
+                            error = None
+                        value = value.get('value', '')
+                        if error:
+                            value += f' <error: {error}>'
                     if field == 'writers':
-                        out.append(' / '.join([
-                            w.get('writer_last_name', '<unknown>').strip()
-                            for w in value
-                        ]))
+                        last_names = []
+                        for w in value:
+                            lname = w.get('writer_last_name')
+                            if lname:
+                                if show_errors and lname.get('error'):
+                                    error = lname.get('error')
+                                else:
+                                    error = None
+                                lname = lname.get('value')
+                                if lname is not None:
+                                    lname = lname.strip()
+                                if error:
+                                    lname += f' <error: {error}>'
+                            else:
+                                lname = '<writer unknown>'
+                            last_names.append(lname)
+                        out.append(' / '.join(sorted(last_names)))
                     else:
                         out.append(value)
                 yield out
 
     def post(self, request, *args, **kwargs):
-        form = FileForm(request.POST, request.FILES)
+        form = ShowErrorsFileForm(request.POST, request.FILES)
         if form.is_valid():
             f = request.FILES['file']
             edi_file = EdiFile(f)
@@ -84,7 +106,8 @@ class CsvOverview(View):
         pseudo_buffer = self.Echo()
         writer = csv.writer(pseudo_buffer)
         response = StreamingHttpResponse(
-            (writer.writerow(row) for row in self.stream_csv(edi_file)),
+            (writer.writerow(row) for row in self.stream_csv(
+                edi_file, form.cleaned_data.get('show_errors'))),
             content_type="text/csv")
         response['Content-Disposition'] = (
             f'attachment; filename="{edi_file.name}.csv"')
