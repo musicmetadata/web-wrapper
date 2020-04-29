@@ -170,6 +170,8 @@ class ExcelOverview(View):
                     'recordings',
                     'duration',
                     'language_code',
+                    'musical_work_distribution_category',
+                    'version_type',
                     'other_titles',
                     'writers',
                     'performing_artists',
