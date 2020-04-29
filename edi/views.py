@@ -17,6 +17,8 @@ from django.views import View
 from collections import OrderedDict, Iterable
 import json
 import csv
+from openpyxl import load_workbook, writer as excel_writer
+import os
 
 
 class FileForm(forms.Form):
@@ -111,6 +113,177 @@ class CsvOverview(View):
             content_type="text/csv")
         response['Content-Disposition'] = (
             f'attachment; filename="{edi_file.name}.csv"')
+        return response
+
+
+class ExcelOverview(View):
+
+    def get(self, request):
+        form = FileForm
+        return render(request, 'file.html', {
+            'title': 'CWR 2.x to Excel - Conversion WITHOUT Validation',
+            'form': form})
+
+    def convert(self, format=None):
+        if format:
+            return self.convert_csv(format)
+
+        for i, (key, row) in enumerate(self):
+            if key == 'work':
+                works.append(list(row.values()))
+            elif key == 'recording':
+                recordings.append(list(row.values()))
+        statistics.append([
+            self.row_count,
+            self.transaction_count,
+            self.parsed_row_count,
+            self.output_rows['work'],
+            self.output_rows['recording']])
+        return writer.excel.save_virtual_workbook(wb)
+
+
+    def post(self, request, *args, **kwargs):
+        form = FileForm(request.POST, request.FILES)
+        if form.is_valid():
+            f = request.FILES['file']
+            edi_file = EdiFile(f)
+            edi_file.seek(0)
+            edi_file.reconfigure(encoding='latin1')
+        else:
+            return render(request, 'file.html', {
+                'title': 'CWR 2.x to Excel - Conversion WITHOUT Validation',
+                'form': form
+            })
+        wb = load_workbook(os.path.join(
+            os.path.dirname(os.path.realpath(__file__)),
+            'template.xlsx'))
+        works = wb.get_sheet_by_name('Works')
+        recordings = wb.get_sheet_by_name('Recordings')
+
+        for group in edi_file.get_groups():
+            for transaction in group.get_transactions():
+                d = transaction.to_dict(1)
+                work_keys = [
+                    'submitter_work_number',
+                    'work_title',
+                    'iswc',
+                    'recordings',
+                    'duration',
+                    'language_code',
+                    'other_titles',
+                    'writers',
+                    'performing_artists',
+                    'original_publishers',
+                ]
+                values = []
+                for key in work_keys:
+                    if key == 'recordings':
+                        isrcs = []
+                        for recording in d['recordings']:
+                            isrc = recording.get('isrc')
+                            if isrc:
+                                isrcs.append(isrc['value'])
+                            recordings.append([
+                                d.get('submitter_work_number', {}).get('value', ''),
+                                d.get('work_title').get('value', ''),
+                                recording.get(
+                                    'isrc', {}
+                                ).get('value', ''),
+                                recording.get(
+                                    'release_date', {}
+                                ).get('value', ''),
+                                recording.get(
+                                    'recording_duration', {}
+                                ).get('value', ''),
+                                recording.get(
+                                    'album_title', {}
+                                ).get('value', ''),
+                                recording.get(
+                                    'ean', {}
+                                ).get('value', ''),
+                                recording.get(
+                                    'album_label', {}
+                                ).get('value', ''),
+                            ])
+                        value = ' | '.join(isrcs)
+                    elif key == 'other_titles':
+                        value = ' | '.join([
+                            t['alternative_title']['value'] or '' for t in
+                            d[key]])
+                    elif key == 'writers':
+                        writer_strings = []
+                        for writer in d['writers']:
+                            controlled = writer.get('controlled')
+                            ln = writer.get(
+                                'writer_last_name',
+                                {'value': '<UNKNOWN>'}
+                            )['value']
+                            fn = writer.get(
+                                'writer_first_name', {}
+                            ).get('value', '')
+                            ipi_name = writer.get(
+                                'writer_ipi_name_number', {}
+                            ).get('value', '')
+                            role = writer.get(
+                                'writer_role', {}
+                            ).get('value', '')
+                            if controlled:
+                                writer_strings.append(
+                                    f'{ln}, {fn} [{ipi_name}] ({role}) *'
+                                )
+                            else:
+                                writer_strings.append(
+                                    f'{ln}, {fn} [{ipi_name}] ({role})'
+                                )
+                        value = ' | '.join(writer_strings)
+                    elif key == 'performing_artists':
+                        artist_strings = []
+                        for artist in d['performing_artists']:
+                            ln = artist.get(
+                                'performing_artist_name',
+                                {'value': '<UNKNOWN>'}
+                            )['value']
+                            fn = artist.get(
+                                'performing_artist_first_name', {}
+                            ).get('value', '')
+                            if fn:
+                                artist_strings.append(
+                                    f'{ ln }, { fn }'
+                                )
+                            else:
+                                artist_strings.append(ln)
+                        value = ' | '.join(artist_strings)
+                    elif key == 'original_publishers':
+                        publisher_strings = []
+                        for publisher in d['original_publishers']:
+                            controlled = publisher.get('controlled')
+                            n = publisher.get(
+                                'publisher_name',
+                                {'value': '<UNKNOWN>'}
+                            )['value']
+                            ipi_name = publisher.get(
+                                'publisher_ipi_name_number', {}
+                            ).get('value', '')
+                            if controlled:
+                                publisher_strings.append(
+                                    f'{ n } [{ ipi_name }] *'
+                                )
+                            else:
+                                publisher_strings.append(
+                                    f'{n} [{ipi_name}]'
+                                )
+                        value = ' | '.join(publisher_strings)
+                    else:
+                        value = d[key].get('value', '') if d.get(key) else ''
+                    values.append(value)
+                works.append(values)
+
+        response = HttpResponse(
+            excel_writer.excel.save_virtual_workbook(wb),
+            content_type='application/vnd.ms-excel')
+        s = 'attachment; filename="{}.xlsx"'.format(
+            edi_file.name)
+        response['Content-Disposition'] = s
         return response
 
 
