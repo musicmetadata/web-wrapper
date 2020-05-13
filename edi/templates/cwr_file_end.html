@@ -1,0 +1,16 @@
+        <pre>{{ edi_file.get_trailer.to_html|safe }}</pre>
+        {% if not edi_file.valid %}
+            <h2>File INVALID</h2>
+            {% if edi_file.file_errors %}
+            <h3>File-level errors</h3>
+            <ul>
+                {% for error in edi_file.file_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+</body>
+</html>

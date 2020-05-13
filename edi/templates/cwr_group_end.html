@@ -1,0 +1,12 @@
+        <pre>{{ group.get_trailer.to_html|safe }}</pre>
+        {% if not group.valid and group.errors %}
+            <h3>Group invalid</h3>
+            {% if group.errors %}
+                <h4>Group-level errors</h4>
+                <ul>
+                    {% for error in group.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endif %}

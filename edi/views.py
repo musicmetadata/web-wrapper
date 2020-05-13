@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.template.loader import render_to_string
 from django.http import (
     HttpResponse, StreamingHttpResponse, HttpResponseBadRequest)
 from django import forms
@@ -120,7 +121,7 @@ class ExcelOverview(View):
 
     def get(self, request):
         form = FileForm
-        return render(request, 'file.html', {
+        return render(request, 'cwr_file_start.html', {
             'title': 'CWR 2.x to Excel - Conversion WITHOUT Validation',
             'form': form})
 
@@ -150,7 +151,7 @@ class ExcelOverview(View):
             edi_file.seek(0)
             edi_file.reconfigure(encoding='latin1')
         else:
-            return render(request, 'file.html', {
+            return render(request, 'cwr_file_start.html', {
                 'title': 'CWR 2.x to Excel - Conversion WITHOUT Validation',
                 'form': form
             })
@@ -297,20 +298,25 @@ class VisualValidatorView(View):
             'title': 'Parsing and Visual Validation',
             'form': form})
 
-    def post(self, request, *args, **kwargs):
-        form = FileForm(request.POST, request.FILES)
-        if form.is_valid():
-            f = request.FILES['file']
-            edi_file = EdiFile(f)
-            edi_file.seek(0)
-            edi_file.reconfigure(encoding='latin1')
-            title = f'Parsing and Visual Validation: { edi_file.name }'
-        else:
-            edi_file = None
-            title = 'Parsing and Visual Validation'
-        return render(request, 'file.html', {
+    def stream(self, request, edi_file, title, form):
+        yield render_to_string('cwr_file_start.html', {
             'title': title,
             'form': form,
+            'edi_file': edi_file,
+            'groups': edi_file.get_groups()
+        }, request)
+        for group in edi_file.get_groups():
+            yield render_to_string('cwr_group_start.html', {
+                'group': group
+            })
+            for transaction in group.get_transactions():
+                yield render_to_string('cwr_transaction.html', {
+                    'transaction': transaction,
+                })
+            yield render_to_string('cwr_group_end.html', {
+                'group': group
+            })
+        yield render_to_string('cwr_file_end.html', {
             'edi_file': edi_file
         })
 
@@ -319,17 +325,19 @@ class VisualValidatorView(View):
         if form.is_valid():
             f = request.FILES['file']
             edi_file = EdiFile(f)
-            edi_file.seek(0)
-            edi_file.reconfigure(encoding='latin1')
             title = f'Parsing and Visual Validation: { edi_file.name }'
+            response = StreamingHttpResponse(self.stream(
+                request, edi_file, title, form))
+            return response
         else:
             edi_file = None
             title = 'Parsing and Visual Validation'
-        return render(request, 'file.html', {
-            'title': title,
-            'form': form,
-            'edi_file': edi_file
-        })
+            return render(request, 'file.html', {
+                'title': title,
+                'form': form,
+                'edi_file': edi_file,
+                'groups': edi_file.get_groups()
+            })
 
 
 class ToJsonFileForm(FileForm):
@@ -398,28 +406,15 @@ class ToJson(View):
             f = request.FILES['file']
             try:
                 edi_file = EdiFile(f)
-                edi_file.seek(0)
-                edi_file.reconfigure(encoding='latin1')
                 d = self.to_json(edi_file, int(form.cleaned_data['verbosity']))
             except Exception as e:
                 return HttpResponseBadRequest('This file can not be processed.')
+            response = StreamingHttpResponse(d)
             if form.cleaned_data['download']:
-                if settings.DEBUG:
-                    response = HttpResponse(d)
-                else:
-                    response = StreamingHttpResponse(d)
                 response['Content-Disposition'] = (
                     f'attachment; filename="{ edi_file.name }.json"')
-                response['Content-Type'] = 'application/json'
-                return response
-            else:
-                return render(request, 'file.html', {
-                    'title':
-                        'CWR 2.x (EDI) to JSON - Conversion with Validation: '
-                        f'{ edi_file.name }',
-                    'form': form,
-                    'pre': ''.join(d)
-                })
+            response['Content-Type'] = 'application/json'
+            return response
         return self.get(request)
 
 
