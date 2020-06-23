@@ -1,5 +1,5 @@
 setuptools==40.8.0
-Django==2.2.10
+Django==3.0.8
 music-metadata-territories==20.5
 # music-metadata-edi==19
 git+https://github.com/musicmetadata/edi#egg=music_metadata_edi
