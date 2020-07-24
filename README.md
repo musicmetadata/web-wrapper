@@ -8,10 +8,6 @@ A web application, based on Django, serving as a wrapper for these libraries:
 * Music Metadata - CRD2: https://github.com/musicmetadata/crd2 (under development, not publicly available)
 * Music Metadata - CWR3: https://github.com/musicmetadata/cwr3 (under development, not publicly available)
 
-Full features demo: http://web-wrapper.matijakolaric.com/
-
-Open-source demo: https://music-metadata.herokuapp.com/
-
 If you want to deploy your own instance to a (free) Heroku account, use this button:
 
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
