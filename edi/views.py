@@ -12,8 +12,7 @@ try:
     from music_metadata.cwr2.file import Cwr2File
     from music_metadata.cwr2.fields import SocietyField
 except:
-    if settings.DEBUG:
-        raise
+    pass
 from django.views import View
 from collections import OrderedDict, Iterable
 import json
@@ -42,6 +41,7 @@ class CsvOverview(View):
             return value
 
     def get(self, request):
+        """Respond to GET."""
         form = ShowErrorsFileForm
         return render(request, 'file.html', {
             'title': 'CWR 2.x to CSV - Conversion with Validation',
@@ -95,6 +95,7 @@ class CsvOverview(View):
                 yield out
 
     def post(self, request, *args, **kwargs):
+        """Respond to POST."""
         form = ShowErrorsFileForm(request.POST, request.FILES)
         if form.is_valid():
             f = request.FILES['file']
@@ -120,30 +121,14 @@ class CsvOverview(View):
 class ExcelOverview(View):
 
     def get(self, request):
-        form = FileForm
-        return render(request, 'cwr_file_start.html', {
+        """Respond to GET."""
+        form = FileForm()
+        return render(request, 'file.html', {
             'title': 'CWR 2.x to Excel - Conversion WITHOUT Validation',
             'form': form})
 
-    def convert(self, format=None):
-        if format:
-            return self.convert_csv(format)
-
-        for i, (key, row) in enumerate(self):
-            if key == 'work':
-                works.append(list(row.values()))
-            elif key == 'recording':
-                recordings.append(list(row.values()))
-        statistics.append([
-            self.row_count,
-            self.transaction_count,
-            self.parsed_row_count,
-            self.output_rows['work'],
-            self.output_rows['recording']])
-        return writer.excel.save_virtual_workbook(wb)
-
-
     def post(self, request, *args, **kwargs):
+        """Respond to POST."""
         form = FileForm(request.POST, request.FILES)
         if form.is_valid():
             f = request.FILES['file']
@@ -211,7 +196,7 @@ class ExcelOverview(View):
                         value = ' | '.join(isrcs)
                     elif key == 'other_titles':
                         value = ' | '.join([
-                            t['alternative_title']['value'] or '' for t in
+                            t['title']['value'] or '' for t in
                             d[key]])
                     elif key == 'writers':
                         writer_strings = []
@@ -293,12 +278,14 @@ class ExcelOverview(View):
 class VisualValidatorView(View):
 
     def get(self, request):
+        """Respond to GET."""
         form = FileForm()
         return render(request, 'file.html', {
             'title': 'Parsing and Visual Validation',
             'form': form})
 
     def stream(self, request, edi_file, title, form):
+        """Yield response in streamed chunks."""
         yield render_to_string('cwr_file_start.html', {
             'title': title,
             'form': form,
@@ -321,6 +308,7 @@ class VisualValidatorView(View):
         })
 
     def post(self, request, *args, **kwargs):
+        """Respond to POST."""
         form = FileForm(request.POST, request.FILES)
         if form.is_valid():
             f = request.FILES['file']
@@ -354,7 +342,7 @@ class ToJson(View):
     def get(self, request):
         form = ToJsonFileForm()
         return render(request, 'file.html', {
-            'title': 'CWR 2.x to JSON - Conversion with Validation',
+            'title': 'EDI to JSON - Conversion with Validation',
             'form': form})
 
     @staticmethod

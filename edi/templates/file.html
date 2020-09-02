@@ -1,7 +1,13 @@
 {% extends "base.html" %}
     {%  block content %}
-        <p>Python code, partly available as open source: <a href="https://github.com/musicmetadata" target="_blank">https://github.com/musicmetadata</a></p>
-        <p>UPLOADED DATA IS TEMPORARILY SAVED FOR PROCESSING AND DELETED WHEN THE RESPONSE IS SENT.</p>
+        <p>
+            CWR 2.x module is
+            {% if not CWR2_AVAILABLE %}
+                <span class="red" title="available to potential sponsors upon request">NOT</span>
+            {% endif %}
+            installed.
+        </p>
+        <p>UPLOADED DATA IS TEMPORARILY SAVED FOR PROCESSING AND DELETED AFTER THE RESPONSE IS SENT.</p>
         <form enctype="multipart/form-data" action="." method="post" class="pure-form">
             {% csrf_token %}
             <table class="pure-table">

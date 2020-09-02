@@ -3,16 +3,38 @@
 <head>
     <meta charset="utf-8">
     <title>{{ title }}</title>
-    <link rel="stylesheet"
-          href="https://unpkg.com/purecss@1.0.1/build/pure-min.css"
-          integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47"
-          crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/pure-min.css" integrity="sha384-cg6SkqEOCV1NbJoCu11+bm0NvBRc8IYLRGXkmNrqUBfTjmMYwNKPWBTIKyw9mHNJ" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/grids-responsive-min.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
+                .header {background: #d50000}
+        .header * {color: white}
+        .header a:hover {background: #ff5600 !important;}
+        .header .pure-menu-children * {background: #d50000 !important;}
+        .pure-menu-heading {text-transform: none !important}
+        * {font-weight: 300 !important;}
+        .main {padding: 20px; line-height: 1.6em}
+        @font-face {
+            font-family: 'Exo 2';
+            src: url('https://dmp.matijakolaric.com/static/fonts/Exo2-VariableFont_wght.ttf') format('truetype');
+            font-weight: 300;
+            font-style: normal;
+        }
+        h1, .home-menu, em {
+            font-family: "Exo 2", sans-serif;
+            font-weight: 300;
+        }
+        em {font-size: 1.1em}
+        .home-menu {font-size: 1.2em}
+        .main p, .main ul, .main .thumbnail {max-width: 100ex; width: 100%}
+        ul {box-sizing: border-box}
+        a {color: #d50000; text-decoration: none}
+
         .field.invalid {background-color: #fc6}
         .record.invalid .field.invalid {background-color: #f66}
         .record.invalid .field:first-child {background-color: #f66}
 		.record.invalid {border-bottom: 1px solid #f66;}
-		.record {margin: 0; font-family: monospace; white-space: pre; margin-bottom: 3px}
+		.record {margin: 0; font-family: monospace,monospace; white-space: pre; margin-bottom: 2px; line-height: 1em}
 
         .field {color: #999}
 		.field.record_type {font-weight: bold; padding: 0 0.1em 0 0;}
@@ -89,44 +111,78 @@
     </style>
 </head>
 <body>
-<div class="pure-menu pure-menu-horizontal"
-     style="background-color: black; padding: 4px ">
-    <a href="/" class="pure-menu-heading pure-menu-link">Home</a>
-    <ul class="pure-menu-list">
-        <li class="pure-menu-item"><a href="{% url 'territory_list' %}"
-                                      class="pure-menu-link">CIS Territory</a>
-        </li>
-        <li class="pure-menu-item"><a href="{% url 'visual_validator' %}"
-                                      class="pure-menu-link">Visual Validator</a>
-        </li>
-        <li class="pure-menu-item"><a href="{% url 'edi_to_csv' %}"
-                                      class="pure-menu-link">CWR 2.x (EDI) to CSV</a>
-        </li>
-        <li class="pure-menu-item"><a href="{% url 'edi_to_json' %}"
-                                      class="pure-menu-link">CWR 2.x (EDI) to JSON</a>
-        </li>
-        <li class="pure-menu-item"><a href="{% url 'societylist' %}"
-                                      class="pure-menu-link">Societies in CWR 2.x</a>
-        </li>
-    </ul>
-</div>
-<div style="margin: 2% 5% ">
-    <h1>{{ title|default:"Music Metadata - Web Wrapper" }}</h1>
-    <div class="pure-g">
-        <div class="pure-u-1">
-        <p>Python code, partly available as open source: <a href="https://github.com/musicmetadata" target="_blank">https://github.com/musicmetadata</a></p>
-        <p>UPLOADED DATA IS TEMPORARILY SAVED FOR PROCESSING AND DELETED WHEN THE RESPONSE IS SENT.</p>
-        <form enctype="multipart/form-data" action="." method="post" class="pure-form">
-            {% csrf_token %}
-            <table class="pure-table">
-                <thead>
-                    <tr><th colspan="2">Choose a file for processing</th></tr>
-                </thead>
-                <tbody>
-                    {{ form.as_table }}
-                    <tr><td colspan="2"><input type="submit" value="Process" class="pure-button" style="width: 100%"></td></tr>
-                </tbody>
-            </table>
-        </form>
-        <h2>File: {{ edi_file }}</h2>
-        <pre>{{ edi_file.get_header.to_html|safe }}</pre>
+<div id="layout">
+    <div class="header">
+        <div class="home-menu pure-menu pure-menu-horizontal">
+            <a href="{% url 'home' %}" class="pure-menu-heading">MUSIC METADATA by Matija Kolarić</a>
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item">
+                    <a href="{% url 'webwrapper' %}" class="pure-menu-link">Web wrapper</a>
+                </li>
+                <li class="pure-menu-item">
+                    <a href="{% url 'territory_list' %}" class="pure-menu-link">Territories</a>
+                </li>
+                <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+                    <a href="{% url 'edi' %}" class="pure-menu-link">EDI</a>
+                    <ul class="pure-menu-children">
+                        <li class="pure-menu-item"><a href="{% url 'visual_validator' %}"
+                                                      class="pure-menu-link">Visual Validator</a>
+                        </li>
+                        <li class="pure-menu-item"><a href="{% url 'edi_to_json' %}"
+                                                      class="pure-menu-link">EDI to JSON</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+                    <a href="#" id="menuLink1" class="pure-menu-link">CWR 2</a>
+                    {% if CWR2_AVAILABLE %}
+                        <ul class="pure-menu-children">
+                            <li class="pure-menu-item"><a href="{% url 'visual_validator' %}"
+                                                          class="pure-menu-link">Visual Validator</a>
+                            </li>
+                            <li class="pure-menu-item"><a href="{% url 'edi_to_json' %}"
+                                                          class="pure-menu-link">EDI to JSON</a>
+                            </li>
+                            <li class="pure-menu-item"><a href="{% url 'cwr_to_csv' %}"
+                                                          class="pure-menu-link">CWR 2.x to CSV</a>
+                            </li>
+                            <li class="pure-menu-item"><a href="{% url 'cwr_to_excel' %}"
+                                                          class="pure-menu-link">CWR 2.x to Excel</a>
+                            </li>
+                            <li class="pure-menu-item"><a href="{% url 'societylist' %}"
+                                                          class="pure-menu-link">Societies in CWR 2.x</a>
+                            </li>
+                        </ul>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="pure-g main">
+        <div class="content pure-u-1 pure-u-md-1-1">
+            <h1>{{ title|default:"MUSIC METADATA by Matija Kolarić" }}</h1>
+            <p>
+                CWR 2.x module
+                {% if CWR2_AVAILABLE %}
+                    IS
+                {% else %}
+                    is NOT
+                {% endif %}
+                installed.
+            </p>
+            <p>UPLOADED DATA IS TEMPORARILY SAVED FOR PROCESSING AND DELETED WHEN THE RESPONSE IS SENT.</p>
+            <form enctype="multipart/form-data" action="." method="post" class="pure-form">
+                {% csrf_token %}
+                <table class="pure-table">
+                    <thead>
+                        <tr><th colspan="2">Choose a file for processing</th></tr>
+                    </thead>
+                    <tbody>
+                        {{ form.as_table }}
+                        <tr><td colspan="2"><input type="submit" value="Process" class="pure-button" style="width: 100%"></td></tr>
+                    </tbody>
+                </table>
+            </form>
+            <br>
+            <h2>File: {{ edi_file }}</h2>
+            <pre>{{ edi_file.get_header.to_html|safe }}</pre>

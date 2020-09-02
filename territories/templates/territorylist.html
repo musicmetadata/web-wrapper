@@ -1,9 +1,17 @@
 {% extends "base.html" %}
     {%  block content %}
-        <p>Territory Information System (TIS) by CISAC provides complex territorial structures, but the official documentation is vague.</p>
-        <p><a href="https://github.com/musicmetadata" target="_blank">Music Metadata - Territories</a> is an open-source Python library for simpler integration into other software.</p>
-        <p>This tool provides a simple web-based experience for its functionality.</p>
-        <p>If values are used in any rows, then the addition is performed.</p>
+        <p>
+            Some of music rights are territorial, most notably in music publishing.
+        </p>
+        <p>
+            Territory Information System (TIS) by CISAC provides a complex territorial structure to be used in
+            batch registrations of musical works and subsequent royalty processing.</p>
+        <p>
+            This is a demo of basic territorial calculations, either by just including and excluding territories,
+            or by share calculations.
+        </p>
+        <p>Open-source code is available at <a href="https://github.com/musicmetadata/territories" target="_blank">https://github.com/musicmetadata/territories</a>.</p>
+        <p>Further development will be focused on mapping TIS and ISO territories.</p>
         <form action="." method="post" class="pure-form">
             {% csrf_token %}
             {{ formset.management_form }}

@@ -19,5 +19,11 @@ from django.views.generic import TemplateView
 urlpatterns = [
     path('territories/', include('territories.urls')),
     path('edi/', include('edi.urls')),
-    path('', TemplateView.as_view(template_name="base.html")),
+    path('', TemplateView.as_view(template_name="base.html"),
+         name='home'),
+    path(
+        'webwrapper/',
+        TemplateView.as_view(template_name="webwrapper.html"),
+        {'title': 'Web Wrapper'},
+        name='webwrapper'),
 ]

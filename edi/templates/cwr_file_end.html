@@ -1,3 +1,4 @@
+        <h3>File trailer</h3>
         <pre>{{ edi_file.get_trailer.to_html|safe }}</pre>
         {% if not edi_file.valid %}
             <h2>File INVALID</h2>
@@ -10,6 +11,7 @@
             </ul>
             {% endif %}
         {% endif %}
+        </div>
     </div>
 </div>
 </body>

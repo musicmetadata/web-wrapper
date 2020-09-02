@@ -1,3 +1,4 @@
+        <h4>Group trailer</h4>
         <pre>{{ group.get_trailer.to_html|safe }}</pre>
         {% if not group.valid and group.errors %}
             <h3>Group invalid</h3>
@@ -10,3 +11,4 @@
                 </ul>
             {% endif %}
         {% endif %}
+        <br>

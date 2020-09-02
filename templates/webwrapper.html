@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+    <p>
+        This is the web wrapper. It is available as open-source code at
+        <a href="https://github.com/musicmetadata/web-wrapper" target="_blank">github.com/musicmetadata/web-wrapper</a>.
+    </p>
+    <p>It's purpose is to provide:
+    </p>
+    <ul>
+        <li>Simple installation - anyone can deploy web wrapper and all open-source elements of the software library,
+        </li>
+        <li>Web interface - features provided in the demos can be tested by anyone,
+            without help of developers and/or system engineers,</li>
+        <li>Demos - by providing examples of most common use cases, anyone can see if the library would work for them.</li>
+    </ul>
+    <h2>Open-source or everything?</h2>
+    <p>Web wrapper also supports features not yet available as open source. Sponsors can install demos of all available features.</p>
+    {% if CWR2_AVAILABLE %}
+        <p>This installation DOES provide CWR 2.x features not available in the open-source demo!</p>
+    {% else %}
+        <p>This installation does NOT provide CWR 2.x features.</p>
+    {% endif %}
+    {% if CWR3_AVAILABLE %}
+        <p>This installation DOES provide CWR 3.x features not available in the open-source demo!</p>
+    {% else %}
+        <p>This installation does NOT provide CWR 3.x features.</p>
+    {% endif %}
+    <h2>Deploy it yourself!</h2>
+    <p>
+        To deploy your own demo (with features available in open-source code) click here:
+    </p>
+    <p>
+        <a href="https://heroku.com/deploy?template=https://github.com/musicmetadata/web-wrapper">
+            <img src="https://www.herokucdn.com/deploy/button.svg" alt="Deploy">
+        </a>
+    </p>
+    <h2>Become a sponsor and use everything!</h2>
+    <p>Full demo available to potential sponsors upon request!</p>
+    <p><a href="https://matijakolaric.com">https://matijakolaric.com</a></p>
+{% endblock %}
