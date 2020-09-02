@@ -2,7 +2,7 @@ setuptools
 Django
 music_metadata_territories>=20.7
 music_metadata_edi>=20.9b1
-# git+https://github.com/matijakolaric/cwr2#egg=music_metadata_cwr2
+git+https://github.com/matijakolaric/cwr2#egg=music_metadata_cwr2
 whitenoise
 gunicorn
 openpyxl
