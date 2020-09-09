@@ -172,7 +172,8 @@ class ExcelOverview(View):
                             if isrc:
                                 isrcs.append(isrc['value'])
                             recordings.append([
-                                d.get('submitter_work_number', {}).get('value', ''),
+                                d.get('submitter_work_number', {}).get(
+                                    'value', ''),
                                 d.get('work_title').get('value', ''),
                                 recording.get(
                                     'isrc', {}
@@ -215,13 +216,26 @@ class ExcelOverview(View):
                             role = writer.get(
                                 'writer_role', {}
                             ).get('value', '')
+                            pr_share = writer.get(
+                                'pr_ownership_share', {}
+                            ).get('value', '') or 0
+                            mr_share = writer.get(
+                                'mr_ownership_share', {}
+                            ).get('value', '') or 0
+                            sr_share = writer.get(
+                                'sr_ownership_share', {}
+                            ).get('value', '') or 0
                             if controlled:
                                 writer_strings.append(
-                                    f'{ln}, {fn} [{ipi_name}] ({role}) *'
+                                    f'{ln}, {fn} [{ipi_name}] ({role}) '
+                                    f'{{{pr_share * 100}%,{mr_share * 100}%'
+                                    f',{sr_share * 100}%}} *'
                                 )
                             else:
                                 writer_strings.append(
-                                    f'{ln}, {fn} [{ipi_name}] ({role})'
+                                    f'{ln}, {fn} [{ipi_name}] ({role}) '
+                                    f'{{{pr_share * 100}%,{mr_share * 100}%'
+                                    f',{sr_share * 100}%}} *'
                                 )
                         value = ' | '.join(writer_strings)
                     elif key == 'performing_artists':
@@ -252,13 +266,30 @@ class ExcelOverview(View):
                             ipi_name = publisher.get(
                                 'publisher_ipi_name_number', {}
                             ).get('value', '')
+                            role = publisher.get(
+                                'publisher_role', {}
+                            ).get('value', '')
+                            pr_share = publisher.get(
+                                'pr_ownership_share', {}
+                            ).get('value', '') or 0
+                            mr_share = publisher.get(
+                                'mr_ownership_share', {}
+                            ).get('value', '') or 0
+                            sr_share = publisher.get(
+                                'sr_ownership_share', {}
+                            ).get('value', '') or 0
+
                             if controlled:
                                 publisher_strings.append(
-                                    f'{ n } [{ ipi_name }] *'
+                                    f'{ n } [{ ipi_name }] ({role}) *'
+                                    f'{{{pr_share * 100}%,{mr_share * 100}%'
+                                    f',{sr_share * 100}%}} *'
                                 )
                             else:
                                 publisher_strings.append(
-                                    f'{n} [{ipi_name}]'
+                                    f'{n} [{ipi_name}] ({role}) '
+                                    f'{{{pr_share * 100}%,{mr_share * 100}%'
+                                    f',{sr_share * 100}%}} *'
                                 )
                         value = ' | '.join(publisher_strings)
                     else:
