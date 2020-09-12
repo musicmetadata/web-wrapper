@@ -13,10 +13,10 @@ urlpatterns = [
          name='visual_validator'),
     path('json/', ToJson.as_view(), name='edi_to_json'),
     path('cwr2/', TemplateView.as_view(template_name="cwr2.html"),
-         {'title': 'CWR 2 - Common Works Registration 2.x'},
+         {'title': 'CWR 2 - Common Works Registration 2.1 and 2.2'},
          name='cwr2'),
     path('cwr3/', TemplateView.as_view(template_name="cwr3.html"),
-         {'title': 'EDI - Electronic Data Interchange'},
+         {'title': 'CWR 3 - Common Works Registration 3.0 and 3.1'},
          name='cwr3'),
 ]
 
