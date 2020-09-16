@@ -1,6 +1,12 @@
-        <h3>File trailer</h3>
-        <pre>{{ edi_file.get_trailer.to_html|safe }}</pre>
-        {% if not edi_file.valid %}
+        {% with edi_file.get_trailer as trailer %}
+            {% if trailer and trailer.type%}
+                <h3>File trailer</h3>
+                <pre>{{ trailer.to_html|safe }}</pre>
+            {% endif %} 
+        {% endwith %}
+        {% if edi_file.valid %}
+            <h2>VALID</h2>
+        {% else %}
             <h2>File INVALID</h2>
             {% if edi_file.file_errors %}
             <h3>File-level errors</h3>

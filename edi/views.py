@@ -14,7 +14,6 @@ try:
 except:
     pass
 from django.views import View
-from collections import OrderedDict, Iterable
 import json
 import csv
 from openpyxl import load_workbook, writer as excel_writer
@@ -355,7 +354,7 @@ class VisualValidatorView(View):
                 'title': title,
                 'form': form,
                 'edi_file': edi_file,
-                'groups': edi_file.get_groups()
+                'groups': edi_file.get_groups() if edi_file else []
             })
 
 
