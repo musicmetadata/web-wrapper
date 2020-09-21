@@ -1,6 +1,7 @@
 from django.test import SimpleTestCase
 from .urls import urlpatterns
 from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 from music_metadata.edi.tests import CWR2_PATH, CWR3_PATH
 import json
 
@@ -26,9 +27,9 @@ class EdiTest(SimpleTestCase):
             submitter = data.get('submitter')
             work_registrations = data.get('work_registrations')
             file = data.get('file')
-            self.assertEqual(
-                submitter.get('submitter_name'),
-                'MUSIC PUB CARTOONS')
+            self.assertIn(
+                'MUSIC PUB CARTOONS',
+                submitter.get('submitter_name', submitter.get('header')))
             self.assertEqual(
                 file.get('name'),
                 'CW190001MPC_000.V21')
@@ -74,3 +75,12 @@ class EdiTest(SimpleTestCase):
             for b in response.streaming_content:
                 c += b
             self.assertIn(b'MUSIC PUB ARTISTS', c)
+
+    def test_csv(self):
+        try:
+            url = reverse('cwr_to_csv')
+            with open(CWR2_PATH) as f:
+                response = self.client.post(url, {'file': f})
+                print(''.join(response.streaming_content))
+        except NoReverseMatch:
+            pass
