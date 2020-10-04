@@ -79,8 +79,32 @@ class EdiTest(SimpleTestCase):
     def test_csv(self):
         try:
             url = reverse('cwr_to_csv')
+            self.client.get(url)
+            with open(CWR2_PATH) as f:
+                response = self.client.post(url, {'file': f, 'show_errors': 1})
+                self.assertEqual(response.status_code, 200)
+                list(response.streaming_content)
+        except NoReverseMatch:
+            raise
+
+
+    def test_excel(self):
+        try:
+            url = reverse('cwr_to_excel')
+            self.client.get(url)
             with open(CWR2_PATH) as f:
                 response = self.client.post(url, {'file': f})
-                print(''.join(response.streaming_content))
+                self.assertEqual(response.status_code, 200)
         except NoReverseMatch:
-            pass
+            raise
+
+
+    def test_societylist(self):
+        try:
+            url = reverse('societylist')
+            self.client.get(url)
+            with open(CWR2_PATH) as f:
+                response = self.client.post(url, {'file': f})
+                self.assertEqual(response.status_code, 200)
+        except NoReverseMatch:
+            raise
