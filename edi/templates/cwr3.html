@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+    {% block content %}
+        <p>
+            Common Works Registration is a format used world-wide for batch registrations of musical works.
+        </p>
+        <h2>Sponsors needed!</h2>
+        <p>
+            CWR 3.0 and 3.1 functionality is in development. 
+        </p>
+        <p>
+            All versions of CWR are parsed to one data structure, and a single data structure can be used to export any CWR version. 
+            (Of course, requirements are different, so validity of each version it depends on the data.) 
+        </p>
+        <p>
+            Potential sponsors can get more information.
+        </p>
+        <p>
+            {% if CWR3_AVAILABLE %}
+                CWR 3.x module is installed in this demo.
+            {% else %}
+                CWR 3.x module is
+                <span class="red" title="available to potential sponsors upon request">NOT</span>
+                installed in this demo.
+            {% endif %}
+        </p>
+        <h2>Demo tools</h2>
+        <p>
+            No demo tools are available for CWR 3.x.
+        <p>
+        <p><a href="https://matijakolaric.com">https://matijakolaric.com</a></p>
+    {% endblock %}

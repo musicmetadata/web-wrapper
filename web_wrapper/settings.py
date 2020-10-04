@@ -28,6 +28,8 @@ DEBUG = os.getenv('DEBUG', False)
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
+DISABLE_CSRF = os.getenv('DISABLE_CSRF', False)
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -47,6 +49,9 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+if DISABLE_CSRF:
+    MIDDLEWARE.remove('django.middleware.csrf.CsrfViewMiddleware')
+
 ROOT_URLCONF = 'web_wrapper.urls'
 
 TEMPLATES = [
@@ -56,6 +61,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'web_wrapper.context_processors.features',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
@@ -85,3 +91,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+try:
+    from music_metadata.cwr2.file import Cwr2File
+    CWR2_AVAILABLE = True
+except:
+    CWR2_AVAILABLE = False
+
+CWR3_AVAILABLE = False

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+    {% block content %}
+        <p>
+            Common Works Registration is a format used world-wide for batch registrations of musical works.
+        </p>
+        <h2>Sponsors needed!</h2>
+        <p>
+            This functionality is not yet available as open-source code. It is complete, well tested and can be
+            made available to sponsors at once.
+        </p>
+        <p>
+            {% if CWR2_AVAILABLE %}
+                CWR 2.x module is installed in this demo.
+            {% else %}
+                CWR 2.x module is
+                <span class="red" title="available to potential sponsors upon request">NOT</span>
+                installed in this demo.
+            {% endif %}
+        </p>
+        <h2>Demo tools</h2>
+        <p>
+            Five tools are provided when the CWR 2.x module is installed:
+        <p>
+        <ul>
+            <li>
+                <a href="{% url 'visual_validator' %}">Visual Validator</a>
+                - same as for EDI, file format is automatically detected,
+            </li>
+            <li>
+                <a href="{% url 'edi_to_json' %}">EDI to JSON</a>
+                - same as for EDI, file format is automatically detected,
+            </li>
+            {% if CWR2_AVAILABLE %}
+                <li>
+                    <a href="{% url 'cwr_to_csv' %}">CWR to CSV (simple) with validation</a>
+                </li>
+                <li>
+                    <a href="{% url 'cwr_to_excel' %}">CWR to Excel (detailed) without validation</a>
+                </li>
+                <li>
+                    <a href="{% url 'societylist' %}">Societies in CWR 2.x</a>
+                </li>
+            {% else %}
+                <li>
+                    CWR to CSV (simple) with validation
+                </li>
+                <li>
+                    CWR to Excel (detailed) without validation
+                </li>
+                <li>
+                    Societies in CWR 2.x
+                </li>
+            {% endif %}
+        </ul>
+        <h2>Become a sponsor and use everything!</h2>
+        <p>Full demo available to potential sponsors upon request!</p>
+        <p><a href="https://matijakolaric.com">https://matijakolaric.com</a></p>
+    {% endblock %}

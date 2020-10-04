@@ -1,6 +1,7 @@
 from django.test import SimpleTestCase
 from .urls import urlpatterns
 from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 from music_metadata.edi.tests import CWR2_PATH, CWR3_PATH
 import json
 
@@ -12,7 +13,7 @@ class EdiTest(SimpleTestCase):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             response = self.client.post(url, {})
-            self.assertEqual(response.status_code, 200)
+            self.assertIn(response.status_code, [200, 405])
 
     def test_json(self):
         url = reverse('edi_to_json')
@@ -26,9 +27,9 @@ class EdiTest(SimpleTestCase):
             submitter = data.get('submitter')
             work_registrations = data.get('work_registrations')
             file = data.get('file')
-            self.assertEqual(
-                submitter.get('submitter_name'),
-                'MUSIC PUB CARTOONS')
+            self.assertIn(
+                'MUSIC PUB CARTOONS',
+                submitter.get('submitter_name', submitter.get('header')))
             self.assertEqual(
                 file.get('name'),
                 'CW190001MPC_000.V21')
@@ -42,7 +43,7 @@ class EdiTest(SimpleTestCase):
                 'verbosity': '0'})
             self.assertIn(
                 b'MUSIC PUB CARTOONS',
-                response.content)
+                b''.join(response.streaming_content))
             self.assertEqual(response.status_code, 200)
 
         with open(CWR3_PATH) as f:
@@ -65,9 +66,45 @@ class EdiTest(SimpleTestCase):
         url = reverse('visual_validator')
         with open(CWR2_PATH) as f:
             response = self.client.post(url, {'file': f})
-            self.assertIn(b'MUSIC PUB CARTOONS', response.content)
+            self.assertIn(b'MUSIC PUB CARTOONS', b''.join(response.streaming_content))
             self.assertEqual(response.status_code, 200)
         with open(CWR3_PATH) as f:
             response = self.client.post(url, {'file': f})
-            self.assertIn(b'MUSIC PUB ARTISTS', response.content)
+            c = b''
             self.assertEqual(response.status_code, 200)
+            for b in response.streaming_content:
+                c += b
+            self.assertIn(b'MUSIC PUB ARTISTS', c)
+
+    def test_csv(self):
+        try:
+            url = reverse('cwr_to_csv')
+            self.client.get(url)
+            with open(CWR2_PATH) as f:
+                response = self.client.post(url, {'file': f, 'show_errors': 1})
+                self.assertEqual(response.status_code, 200)
+                list(response.streaming_content)
+        except NoReverseMatch:
+            raise
+
+
+    def test_excel(self):
+        try:
+            url = reverse('cwr_to_excel')
+            self.client.get(url)
+            with open(CWR2_PATH) as f:
+                response = self.client.post(url, {'file': f})
+                self.assertEqual(response.status_code, 200)
+        except NoReverseMatch:
+            raise
+
+
+    def test_societylist(self):
+        try:
+            url = reverse('societylist')
+            self.client.get(url)
+            with open(CWR2_PATH) as f:
+                response = self.client.post(url, {'file': f})
+                self.assertEqual(response.status_code, 200)
+        except NoReverseMatch:
+            raise

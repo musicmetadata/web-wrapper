@@ -60,6 +60,7 @@ class BaseTerritoryFormset(forms.BaseFormSet):
             except ValueError as e:
                 form.add_error(None, str(e))
         self.territory_list = tl
+        self.territory_list.compress()
 
 
 TerritoryFormSet = forms.formset_factory(

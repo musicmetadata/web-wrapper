@@ -1,0 +1,13 @@
+        <h4 {% if not transaction.valid %}class="invalid"{% endif %}>
+            Transaction {{ transaction }}{% if not transaction.valid %} - INVALID{% endif %}
+        </h4>
+        {% if not transaction.valid and transaction.errors %}
+            <h5>Transaction-level errors</h5>
+            <ul>
+                {% for error in transaction.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <pre>{% for record in transaction.records %}{{ record.to_html|safe }}<br/>{% endfor %}
+        </pre>

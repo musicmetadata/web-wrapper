@@ -1,9 +1,7 @@
-setuptools==40.8.0
-Django==3.0.7
-music-metadata-territories==20.7
-music-metadata-edi==19
-#git+https://github.com/musicmetadata/edi#egg=music_metadata_edi
-#git+ssh://github.com/matijakolaric/cwr2#egg=music_metadata_cwr2
+setuptools
+Django
+music_metadata_territories>=20.9b1
+music_metadata_edi>=20.9b1
 whitenoise
 gunicorn
-
+openpyxl

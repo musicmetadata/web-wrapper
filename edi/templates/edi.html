@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+    {% block content %}
+        <p>
+            Several file formats defined by CISAC, most notably various versions of CWR and CRD, are based on EDI.
+        </p>
+        <p>
+            The code available as at <a href="https://github.com/musicmetadata/edi" target="_blank">
+            github.com/musicmetadata/edi</a> providing common functionality.
+        </p>
+        <p>
+            Two demo tools are provided:
+        <p>
+        <ul>
+            <li>
+                <a href="{% url 'visual_validator' %}">Visual Validator</a>
+            </li>
+            <li>
+                <a href="{% url 'edi_to_json' %}">EDI to JSON</a>
+            </li>
+        </ul>
+        <p>
+            If CWR2 or CWR3 modules are installed (and in the future CRD, etc.), both these tools automatically detect
+            the format and process the file accordingly.
+        </p>
+        <p>
+            CWR 2.x module is
+            {% if not CWR2_AVAILABLE %}
+                <span class="red" title="available to potential sponsors upon request">NOT</span>
+            {% endif %}
+            installed.
+        </p>
+        <h2>Become a sponsor and use everything!</h2>
+        <p>Full demo available to potential sponsors upon request!</p>
+        <p><a href="https://matijakolaric.com">https://matijakolaric.com</a></p>
+    {% endblock %}
