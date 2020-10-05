@@ -232,7 +232,7 @@ class ExcelOverview(View):
                                 writer_strings.append(
                                     f'{ln}, {fn} [{ipi_name}] ({role}) '
                                     f'{{{pr_share * 100}%,{mr_share * 100}%'
-                                    f',{sr_share * 100}%}} *'
+                                    f',{sr_share * 100}%}}'
                                 )
                         value = ' | '.join(writer_strings)
                     elif key == 'performing_artists':
@@ -286,7 +286,7 @@ class ExcelOverview(View):
                                 publisher_strings.append(
                                     f'{n} [{ipi_name}] ({role}) '
                                     f'{{{pr_share * 100}%,{mr_share * 100}%'
-                                    f',{sr_share * 100}%}} *'
+                                    f',{sr_share * 100}%}}'
                                 )
                         value = ' | '.join(publisher_strings)
                     else:
