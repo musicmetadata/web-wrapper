@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    VisualValidatorView, ToJson, SocietyListView, CsvOverview, ExcelOverview)
+    VisualValidatorView, ToJson, SocietyListView, CsvOverview, ExcelOverview, ToDMP)
 from django.conf import settings
 from django.views.generic import TemplateView
 
@@ -23,6 +23,7 @@ urlpatterns = [
 if settings.CWR2_AVAILABLE:
     urlpatterns += [
         path('csv/', CsvOverview.as_view(), name='cwr_to_csv'),
+        path('dmp/', ToDMP.as_view(), name='cwr_to_dmp'),
         path('excel/', ExcelOverview.as_view(), name='cwr_to_excel'),
         path('societylist/', SocietyListView.as_view(), name='societylist'),
     ]

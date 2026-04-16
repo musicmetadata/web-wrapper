@@ -15,8 +15,9 @@ from django.views import View
 import json
 import csv
 from openpyxl import load_workbook, writer as excel_writer
+from tempfile import TemporaryFile, NamedTemporaryFile
 import os
-
+from collections import OrderedDict
 
 class FileForm(forms.Form):
     file = forms.FileField()
@@ -52,6 +53,8 @@ class CsvOverview(View):
             'musical_work_distribution_category',
             'version_type',
             'writers',
+            'original_publishers',
+            'shares'
             'valid',
         )
         yield fields
@@ -60,15 +63,18 @@ class CsvOverview(View):
                 d = transaction.to_dict(1)
                 out = []
                 for field in fields:
-                    value = d.get(field, '')
+                    value = d.get(field, '') or ''
                     if isinstance(value, dict):
                         if show_errors and value.get('error'):
                             error = value.get('error')
                         else:
                             error = None
-                        value = value.get('value', '')
+                        value = value.get('value', '') or ''
                         if error:
                             value += f' <error: {error}>'
+                        if field == 'submitter_work_number' and not value:
+                            value = d.get('acknowledgement', {}).get('recipient_creation_number', {}).get('value', '')
+                            
                     if field == 'writers':
                         last_names = []
                         for w in value:
@@ -87,8 +93,28 @@ class CsvOverview(View):
                                 lname = '<writer unknown>'
                             last_names.append(lname)
                         out.append(' / '.join(sorted(last_names)))
+                    elif field == 'original_publishers':
+                        names = []
+                        for w in value:
+                            lname = w.get('publisher_name')
+                            if lname:
+                                if show_errors and lname.get('error'):
+                                    error = lname.get('error')
+                                else:
+                                    error = None
+                                lname = lname.get('value') or ''
+                                if lname is not None:
+                                    lname = lname.strip()
+                                if error:
+                                    lname += f' <error: {error}>'
+                            else:
+                                lname = '<publisher unknown>'
+                            names.append(lname)
+                        out.append(' / '.join(sorted(names)))
                     else:
                         out.append(value)
+                else:
+                    out.append(value)
                 yield out
 
     def post(self, request, *args, **kwargs):
@@ -293,14 +319,16 @@ class ExcelOverview(View):
                         value = d[key].get('value', '') if d.get(key) else ''
                     values.append(value)
                 works.append(values)
-
-        response = HttpResponse(
-            excel_writer.excel.save_virtual_workbook(wb),
-            content_type='application/vnd.ms-excel')
-        s = 'attachment; filename="{}.xlsx"'.format(
-            edi_file.name)
-        response['Content-Disposition'] = s
-        return response
+        with TemporaryFile() as tmp:
+            wb.save(tmp)
+            tmp.seek(0)
+            response = HttpResponse(
+                tmp.read(),
+                content_type='application/vnd.ms-excel')
+            s = 'attachment; filename="{}.xlsx"'.format(
+                edi_file.name)
+            response['Content-Disposition'] = s
+            return response
 
 
 class VisualValidatorView(View):
@@ -430,6 +458,175 @@ class ToJson(View):
                 response['Content-Disposition'] = (
                     f'attachment; filename="{ edi_file.name }.json"')
             response['Content-Type'] = 'application/json'
+            return response
+        return self.get(request)
+
+
+class ToDMP(View):
+
+    def get(self, request):
+        """Respond to GET."""
+        form = FileForm
+        return render(request, 'file.html', {
+            'title': 'CWR 2.x to DMP - Conversion without Validation',
+            'form': form})
+
+    @staticmethod
+    def to_dmp(f):
+        
+        tmp_file = open('tmpfile', 'wb+')
+        for line in f.readlines():
+            tmp_file.write(line)
+        tmp_file.close()
+        tmp_file = open('tmpfile', 'rb')
+        edi_file = EdiFile(tmp_file)
+        columns_in_count = OrderedDict()
+        ignored_columns = ['valid', 'work_errors']
+        
+        for group in edi_file.get_groups():
+            for transaction in group.get_transactions():
+                try:
+                    d = transaction.to_dict()
+                    for key in d.keys():
+                        if key in ignored_columns:
+                            continue
+                        if isinstance(d[key], list):
+                            l = len(d[key])
+                        elif d[key]:
+                            l = 1
+                        else:
+                            l = 0
+                        if l:
+                            if key not in columns_in_count:
+                                columns_in_count[key] = l
+                            elif l > columns_in_count[key]:
+                                columns_in_count[key] = l
+                except Exception as e:
+                    raise e
+        fieldnames = [
+            'work id', 'work title', 'iswc',
+        ]
+        if 'other_titles' in columns_in_count:
+            for i in range(1, columns_in_count['other_titles'] + 1):
+                fieldnames.append(f'alt title {i}'.format(i))
+        if 'writers' in columns_in_count:
+            for i in range(1, columns_in_count['writers'] + 1):
+                fieldnames.append(f'writer {i} first')
+                fieldnames.append(f'writer {i} last')
+                fieldnames.append(f'writer {i} ipi')
+                fieldnames.append(f'writer {i} pro')
+                fieldnames.append(f'writer {i} mro')
+                fieldnames.append(f'writer {i} role')
+                fieldnames.append(f'writer {i} pr_share')
+                fieldnames.append(f'writer {i} mr_share')
+                fieldnames.append(f'writer {i} sr_share')
+                fieldnames.append(f'writer {i} controlled')
+                fieldnames.append(f'writer {i} saan')
+                fieldnames.append(f'writer {i} publisher name')
+                fieldnames.append(f'writer {i} publisher ipi')
+        if 'original_publishers' in columns_in_count:
+            for i in range(1, columns_in_count['original_publishers'] + 1):
+                fieldnames.append(f'writer p{i} publisher name')
+                fieldnames.append(f'writer p{i} publisher ipi')
+                fieldnames.append(f'writer p{i} publisher_pr_share')
+                fieldnames.append(f'writer p{i} publisher_mr_share')
+                fieldnames.append(f'writer p{i} publisher_mr_share')
+        fieldnames_upper = []
+        for fieldname in fieldnames:
+            fieldnames_upper.append(fieldname.upper())
+        yield fieldnames_upper
+        print(fieldnames_upper)
+
+        tmp_file.close()
+        tmp_file = open('tmpfile', 'rb')
+        edi_file = EdiFile(tmp_file)
+
+        for group in edi_file.get_groups():
+            for transaction in group.get_transactions():
+                d = transaction.to_dict(1)
+                row = []
+                row.append(d.get('submitter_work_number', {}).get('value', ''))
+                row.append(d.get('work_title', {}).get('value', ''))
+                row.append(d.get('iswc', {}).get('value', ''))
+                
+                for i in range(0, columns_in_count['other_titles']):
+                    if 'other_titles' in d and i < len(d['other_titles']):
+                        row.append(d['other_titles'][i]['title']['value'])
+                    else:
+                        row.append('')
+
+                for i in range(columns_in_count['writers']):
+                    if 'writers' in d and i < len(d['writers']):
+                        row.append(d['writers'][i].get('writer_first_name', {}).get('value', ''))
+                        row.append(d['writers'][i].get('writer_last_name', {}).get('value', ''))
+                        row.append(d['writers'][i].get('writer_ipi_name_number', {}).get('value', ''))
+
+                        row.append(str(d['writers'][i].get('pr_affiliation_society_number', {}).get('value', '')))
+                        row.append(str(d['writers'][i].get('mr_affiliation_society_number', {}).get('value', '')))
+                        row.append(d['writers'][i].get('role', {}).get('value', ''))
+
+                        row.append(str(d['writers'][i].get('pr_ownership_share', {}).get('value', '')))
+                        row.append(str(d['writers'][i].get('mr_ownership_share', {}).get('value', '')))
+                        row.append(str(d['writers'][i].get('sr_ownership_share', {}).get('value', '')))
+                        if d['writers'][i].get('controlled', False):
+                            row.append(1)
+                        else:
+                            row.append('')
+                        row.append('')
+                        if d['writers'][i].get('original_publishers'):
+                            op = d['writers'][i]['original_publishers'][0]
+                            row.append(op.get('publisher_name', {}).get('value', ''))
+                            row.append(op.get('publisher_ip_number', {}).get('value', ''))
+                        else:    
+                            row.append('')
+                            row.append('')
+                    else:
+                        row.append('')
+                        row.append('')
+                        row.append('')
+
+                        row.append('')
+                        row.append('')
+                        row.append('')
+
+                        row.append('')
+                        row.append('')
+                        row.append('')
+
+                        row.append('')
+
+                        row.append('')
+
+                        row.append('')
+                        row.append('')
+
+                for i in range(columns_in_count['original_publishers']):
+                    if 'original_publishers' in d and i < len(d['original_publishers']):
+                        row.append(d['original_publishers'][i].get('publisher_name', {}).get('value', ''))
+                        row.append(d['original_publishers'][i].get('publisher_ipi_name_number', {}).get('value', ''))
+                        row.append(str(d['original_publishers'][i].get('pr_ownership_share', {}).get('value', '')))
+                        row.append(str(d['original_publishers'][i].get('mr_ownership_share', {}).get('value', '')))
+                        row.append(str(d['original_publishers'][i].get('sr_ownership_share', {}).get('value', '')))
+                    else:
+                        row.append('')
+                        row.append('')
+                        row.append('')
+                        row.append('')
+                        row.append('')
+                yield row
+        tmp_file.close()
+
+    def post(self, request, *args, **kwargs):
+        form = FileForm(request.POST, request.FILES)
+        if form.is_valid():
+            f = request.FILES['file']
+            pseudo_buffer = CsvOverview.Echo()
+            writer = csv.writer(pseudo_buffer)
+            response = StreamingHttpResponse(
+                (writer.writerow(row) for row in  self.to_dmp(f)),
+                content_type="text/csv")
+            response['Content-Disposition'] = (
+                f'attachment; filename="{ f.name }.dmp.csv"')
             return response
         return self.get(request)
 
